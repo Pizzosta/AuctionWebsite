@@ -5,7 +5,7 @@ from flask_uploads import UploadSet, configure_uploads, IMAGES
 from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
-DB_NAME = "auction"
+DB_NAME = "Auction"
 
 
 def create_app():
@@ -43,6 +43,8 @@ def create_app():
 
         if not admin_user:
             admin_user = User(
+                firstname='Pizzosta',  # Provide a valid firstname
+                lastname='Ampah',
                 username='Admin',
                 email='admin@example.com',
                 password=password_hash,

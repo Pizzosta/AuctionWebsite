@@ -1,5 +1,5 @@
-from sqlalchemy.orm import validates
 from datetime import datetime
+from sqlalchemy.orm import validates
 from flask_login import UserMixin
 from webflask import db
 
@@ -10,7 +10,7 @@ class User(db.Model, UserMixin):
     lastname = db.Column(db.String(100), unique=True, nullable=False)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
 
