@@ -8,6 +8,11 @@ from webflask import db
 
 views = Blueprint('views', __name__)
 
+@views.route('/', methods=['GET', 'POST'])
+def home_page():
+    show_div = True  # Set the value of show_div
+    return render_template("base.html", show_div=show_div, user=current_user)
+
 
 @views.route('/upload', methods=['GET', 'POST'])
 @login_required

@@ -43,7 +43,7 @@ def create_app():
 
         if not admin_user:
             admin_user = User(
-                firstname='Pizzosta',  # Provide a valid firstname
+                firstname='Pizzosta',
                 lastname='Ampah',
                 username='Admin',
                 email='admin@example.com',
