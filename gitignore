@@ -1,0 +1,5 @@
+#ignore pycache
+__pycache__
+
+#ignore bash script
+push.sh
