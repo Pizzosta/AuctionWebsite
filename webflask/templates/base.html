@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="cybersecurity services">
+    <meta name="description" content="Auction services">
     <meta name="author" content="Pizzosta">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/projectartimuslogo.png') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
@@ -19,7 +19,7 @@
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         crossorigin="anonymous"></script>
 
-    <title>{% block title %}Project Artimus{% endblock %}</title>
+    <title>{% block title %}KAWODZE{% endblock %}</title>
 </head>
 
 <body>
@@ -117,10 +117,12 @@
     </div>
     {% endif %}
 
-    <div class="container">
-        <h1>About This Auction</h1>
+    <div class="container rounded shadow">
+        <div class="mt-2">
+        <h1 class="text-center">About This Auction</h1>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
             vulputate sapien luctus.</p>
+        </div>
 
         <h2>Current Bid: $500</h2>
         <div class="col-sm p-3 m-2">
@@ -134,7 +136,7 @@
 
         <button class="btn btn-primary mt-3">Place Bid</button>
 
-        <div class="top-bids">
+        <div class="top-bids pb-3">
             <h2>Top Bids</h2>
             <ul class="list-group">
                 <li class="list-group-item">Bidder 1 - $600</li>
@@ -167,8 +169,8 @@
             </a>
 
         </div>
-        <p class="text-center mt-2"> &copy;<time datetime="2023-06-11">June 11, 2023 </time>
-            | PROJECT ARTIMUS &#174; All rights reserved. Cookie policy, Privacy and Terms</p>
+        <p class="text-center mt-2"> &copy;<time datetime="2023-10-11">October 11, 2023 </time>
+            | KAWODZE &#174; All rights reserved. Cookie policy, Privacy and Terms</p>
 
     </footer>
     {% block javascript %}
