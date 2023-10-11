@@ -119,24 +119,29 @@
 
     <div class="container rounded shadow">
         <div class="mt-2">
-        <h1 class="text-center">About This Auction</h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
-            vulputate sapien luctus.</p>
+            <h4 class="text-center">ABOUT THIS AUCTION</h4>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
+                vulputate sapien luctus.</p>
         </div>
 
-        <h2>Current Bid: $500</h2>
-        <div class="col-sm p-3 m-2">
-            <img src="{{ url_for('static', filename='images/vector.jpg') }}"
-                class="rounded img-fluid mx-auto d-block hover-zoom" alt="Pizzosta" style="width:300px;">
+        <div class="container row">
+            <div class="col-sm p-3 m-2 border rounded">
+                <img src="{{ url_for('static', filename='images/vector.jpg') }}"
+                    class="rounded shadow img-fluid mx-auto d-block hover-zoom" alt="Pizzosta" style="width:300px;">
 
+            </div>
+            <div class="col-sm p-3 m-2 border rounded">
+                <h4 class="text-center border-bottom">BID INFORMATION</h4>
+                <h6>Current Bid: $500</h6>
+                <h6>Personal Bid: $500</h6>
+                <div class="timer">
+                    Time Left: <span id="countdown">00:01:00</span>
+                </div>
+                <button class="btn btn-primary mt-3">Place Bid</button>
+            </div>
         </div>
-        <div class="timer">
-            Time Left: <span id="countdown">00:01:00</span>
-        </div>
 
-        <button class="btn btn-primary mt-3">Place Bid</button>
-
-        <div class="top-bids pb-3">
+        <div class="pb-3">
             <h2>Top Bids</h2>
             <ul class="list-group">
                 <li class="list-group-item">Bidder 1 - $600</li>
