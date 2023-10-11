@@ -17,3 +17,8 @@
   font-size: 35px;
   float: left;
 }
+
+/* Custom CSS to set the height of the carousel */
+.custom-carousel {
+  height: 300px;
+}

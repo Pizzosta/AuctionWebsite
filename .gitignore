@@ -2,4 +2,4 @@
 __pycache__
 
 #ignore bash script
-push.sh
+git.sh
