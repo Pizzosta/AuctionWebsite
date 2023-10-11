@@ -9,7 +9,7 @@ function scrollToTop() {
 
 // Set the target date and time (5 minutes from now)
 var targetDate = new Date();
-targetDate.setMinutes(targetDate.getMinutes() + 1);
+targetDate.setMinutes(targetDate.getMinutes() + 5);
 
 function updateTimer() {
   var now = new Date();
