@@ -127,6 +127,15 @@
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
                 vulputate sapien luctus.</p>
         </div>
+        <div>
+            <ul class="list-group-numbered">
+                {% for auction in user.auctions %}
+                <li class="list-group-item">
+                    {{ auction.description }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
 
         <div class="container row">
             <div class="col-sm p-3 m-2 border rounded">
