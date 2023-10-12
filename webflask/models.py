@@ -75,6 +75,8 @@ class Image(db.Model):
     filename = db.Column(db.String(128), nullable=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=True)
+
 
     def __repr__(self):
         return f"Image(id={self.id}, filename='{self.filename}')"

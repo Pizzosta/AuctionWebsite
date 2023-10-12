@@ -44,7 +44,7 @@
             <ul class="nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link text-black hover-blue" href="/home">Home</a>
+                    <a class="nav-link text-black hover-blue" href="/admin">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-black hover-blue" href="/logout">Logout</a>
@@ -118,21 +118,25 @@
 
     <div class="container rounded shadow">
         <div class="mt-2">
-            <h4 class="text-center">ABOUT THIS AUCTION</h4>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
-                vulputate sapien luctus.</p>
-        </div>
-        <div class="mt-2">
             <h4 class="text-center">AUCTION RULES</h4>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
                 vulputate sapien luctus.</p>
         </div>
+        <div class="mt-2">
+            <h4 class="text-center">ABOUT THIS AUCTION</h4>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
+                vulputate sapien luctus.</p>
+        </div>
+        
         <div>
-            <ul class="list-group-numbered">
+            <ul class="list-unstyled">
                 {% for auction in user.auctions %}
-                <li class="list-group-item">
+                {% if auction.user_id == 1 %}
+                <h5 class="text-center"> {{ auction.title | upper}}</h5>
+                <li>
                     {{ auction.description }}
                 </li>
+                {% endif %}
                 {% endfor %}
             </ul>
         </div>
