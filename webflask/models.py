@@ -43,7 +43,9 @@ class Auction(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     # Define a one-to-many relationship with bids (one auction can have multiple bids)
-    bids = db.relationship('Bid', backref='auction', lazy=True, cascade='all, delete-orphan', passive_deletes=True)
+    bids = db.relationship('Bid', backref='auction', lazy=True, cascade='all, delete-orphan')
+
+    images = db.relationship('Image', backref='auction', lazy=True, cascade='all, delete-orphan')
     
 
     @validates('end_time')

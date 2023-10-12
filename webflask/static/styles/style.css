@@ -22,3 +22,9 @@
 .custom-carousel {
   height: 300px;
 }
+
+.preview-thumbnail {
+  max-width: 100px; /* Set the maximum width */
+  max-height: 100px; /* Set the maximum height */
+  margin: 5px; /* Add some spacing between thumbnails */
+}
