@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from webflask.models import User
@@ -24,7 +24,7 @@ def login():
                 if user.is_admin:
                     return redirect(url_for('views.admin_panel'))
                 else:
-                    return redirect(url_for('views.home'))
+                    return redirect(url_for('views.home_page'))
             else:
                 flash('Incorrect password, try again', category='error')
         else:
