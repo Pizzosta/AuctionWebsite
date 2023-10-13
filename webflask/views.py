@@ -13,7 +13,7 @@ def home_page():
     show_div = True  # Set the value of show_div
     return render_template("base.html", show_div=show_div, user=current_user)
 
-def get_appropriate_auction():
+#def get_appropriate_auction():
     # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
     auction = Auction.query.filter(
         Auction.deleted is False  # Assuming you use a boolean field to mark auctions as deleted
@@ -24,7 +24,9 @@ def get_appropriate_auction():
         # Define your own logic here. For example, create a new auction or return None.
         pass
 
+    print("Appropriate Auction:", auction)
     return auction
+
 
 @views.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -44,7 +46,16 @@ def admin_panel():
 
         image = request.files.getlist('image')
 
-        if title and description and start_time and end_time and starting_bid:
+        # Print the form data to the console for debugging
+        print("Title:", title)
+        print("Description:", description)
+        print("Start Time:", start_time)
+        print("End Time:", end_time)
+        print("Starting Bid:", starting_bid)
+        print("Bid Amount:", bid_amount)
+        print("Images:", image)
+
+        if title and description and start_time and end_time and starting_bid and bid_amount:
             # Handle the Auction form submission
             # Create the Auction object and add it to the database
             auction = Auction(title=title, description=description,
@@ -54,9 +65,21 @@ def admin_panel():
             db.session.commit()
             flash('Auction created successfully!', category='success')
 
-        elif bid_amount:
+        if bid_amount:
             # Handle the Bid form submission
             bid_amount = float(bid_amount)
+
+            def get_appropriate_auction():
+                # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
+                auction = Auction.query.filter().order_by(Auction.created_at.desc()).first()
+
+                # If no active auction is found, you can create a new one or define your own logic.
+                if auction is None:
+                    # Define your own logic here. For example, create a new auction or return None.
+                    pass
+
+                print("Appropriate Auction:", auction)
+                return auction
             # Create the Bid object and add it to the database
             auction = get_appropriate_auction()  # Get the appropriate auction
             if auction:
@@ -65,8 +88,10 @@ def admin_panel():
                 db.session.add(bid)
                 db.session.commit()
                 flash('Bid placed successfully!', category='success')
+            else:
+                flash('No active auctions available. Create a new auction first.', category='error')
 
-        elif image:
+        if image:
             # Get a list of uploaded files
             for uploaded_file in image:
                 if uploaded_file:
