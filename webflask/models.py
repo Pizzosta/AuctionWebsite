@@ -50,18 +50,21 @@ class Auction(db.Model):
     # Define a one-to-many relationship with images (one auction can have multiple images)
     images = db.relationship('Image', backref='auction', lazy=True, cascade='all, delete-orphan')
     
+    @validates('starting_bid')
+    def validate_starting_bid(self, key, starting_bid):
+        starting_bid = float(starting_bid)
+        #print(f"Validating {key} with value: {starting_bid}")
+        if starting_bid <= 0:
+            raise ValueError("Starting bid must be a positive value.")
+        return starting_bid
 
     @validates('end_time')
-    def validate_end_time(self, end_time):
+    def validate_end_time(self, key, end_time):
+        #print(f"Validating {key} with value: {end_time}")
         if end_time <= self.start_time:
             raise ValueError("End time must be after start time.")
         return end_time
 
-    @validates('starting_bid')
-    def validate_starting_bid(self, starting_bid):
-        if starting_bid <= 0:
-            raise ValueError("Starting bid must be a positive value.")
-        return starting_bid
 
 # Bid Model
 class Bid(db.Model):
