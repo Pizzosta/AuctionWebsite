@@ -3,17 +3,18 @@ from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
 from flask_uploads import UploadSet, IMAGES
 from werkzeug.utils import secure_filename
-from webflask.models import Image, Auction, Bid
+from webflask.models import User, Image, Auction, Bid
 from webflask import db
 
 views = Blueprint('views', __name__)
+
 
 @views.route('/', methods=['GET', 'POST'])
 def home_page():
     show_div = True  # Set the value of show_div
     return render_template("base.html", show_div=show_div, user=current_user)
 
-#def get_appropriate_auction():
+# def get_appropriate_auction():
     # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
     auction = Auction.query.filter(
         Auction.deleted is False  # Assuming you use a boolean field to mark auctions as deleted
@@ -71,12 +72,7 @@ def admin_panel():
 
             def get_appropriate_auction():
                 # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
-                auction = Auction.query.filter().order_by(Auction.created_at.desc()).first()
-
-                # If no active auction is found, you can create a new one or define your own logic.
-                if auction is None:
-                    # Define your own logic here. For example, create a new auction or return None.
-                    pass
+                auction = Auction.query.join(User).filter(User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()
 
                 print("Appropriate Auction:", auction)
                 return auction
@@ -89,7 +85,8 @@ def admin_panel():
                 db.session.commit()
                 flash('Bid placed successfully!', category='success')
             else:
-                flash('No active auctions available. Create a new auction first.', category='error')
+                flash(
+                    'No active auctions available. Create a new auction first.', category='error')
 
         if image:
             # Get a list of uploaded files

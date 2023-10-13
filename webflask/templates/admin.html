@@ -46,6 +46,35 @@
 
 </form>
 
-<!-- Submit Button -->
+<div>
+    <ul class="list-unstyled">
+        {% for auction in user.auctions %}
+            {% if auction.user.is_admin %}
+                <h5 class="text-center">{{ auction.title | upper }}</h5>
+                <li>
+                    {{ auction.description }}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+
+<div>
+    <ul class="list-unstyled">
+        {% for auction in user.auctions %}
+            {% if auction.user.is_admin %}
+                <li>
+                    {{ auction.title }}
+                    {{ auction.description }}
+                    {{ auction.created_at }}
+                    {{ auction.start_time }}
+                    {{ auction.end_time }}
+                    {{ auction.starting_bid }}
+
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
 
 {% endblock %}
