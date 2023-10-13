@@ -5,7 +5,7 @@ from flask_uploads import UploadSet, configure_uploads, IMAGES
 from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
-DB_NAME = "Auction"
+DB_NAME = "kawodze"
 
 
 def create_app():

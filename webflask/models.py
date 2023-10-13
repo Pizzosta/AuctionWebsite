@@ -5,6 +5,7 @@ from webflask import db
 
 # User Model
 class User(db.Model, UserMixin):
+    #__tablename__ = 'User'
     id = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(100), nullable=False)
     lastname = db.Column(db.String(100), nullable=False)
@@ -30,6 +31,7 @@ class User(db.Model, UserMixin):
 
 # Auction Model
 class Auction(db.Model):
+    #__tablename__ = 'Auction'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -44,7 +46,8 @@ class Auction(db.Model):
 
     # Define a one-to-many relationship with bids (one auction can have multiple bids)
     bids = db.relationship('Bid', backref='auction', lazy=True, cascade='all, delete-orphan')
-
+    
+    # Define a one-to-many relationship with images (one auction can have multiple images)
     images = db.relationship('Image', backref='auction', lazy=True, cascade='all, delete-orphan')
     
 
@@ -62,6 +65,7 @@ class Auction(db.Model):
 
 # Bid Model
 class Bid(db.Model):
+    #__tablename__ = 'Bid'
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Float, nullable=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
@@ -73,13 +77,17 @@ class Bid(db.Model):
     auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=False)
 
 class Image(db.Model):
+    #__tablename__ = 'Image'
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(128), nullable=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
+
+     # Define a many-to-one relationship with auctions (many images can belong to one auction)
+    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=False)
+    #auction = db.relationship('Auction', backref='images', lazy=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=True)
+    #auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=True)
 
 
     def __repr__(self):
         return f"Image(id={self.id}, filename='{self.filename}')"
-
