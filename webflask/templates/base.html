@@ -84,7 +84,7 @@
     {% endif %}
     {% endwith %}-->
 
-    <div id="flash-message">
+    <div id="flash-message password_match_error">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}
@@ -142,12 +142,21 @@
         </div>
 
         <div>
+            <h5 class="text-center"> LIVE AUCTIONS </h5>
             <ul class="list-unstyled">
                 {% for auction in user.auctions %}
-                {% if auction.user_id == 1 %}
-                <h5 class="text-center"> {{ auction.title | upper}}</h5>
+                {% if auction.user.is_admin %}
                 <li>
+                    {{ auction.title | upper }}
                     {{ auction.description }}
+                    {{ auction.end_time }}
+                    <!--<img src="{{ url_for('static', filename='images/uploads' ~ auction.images[0].filename) }}"
+                        alt="Auction Image">-->
+                    {% for image in auction.images %}
+                    <p>IMAGES</p>
+                    <img src="{{ url_for('static', filename='images/uploads/' + image.filename) }}" alt="Auction Image"
+                        style="max-width: 200px; max-height: 200px;">
+                    {% endfor %}
                 </li>
                 {% endif %}
                 {% endfor %}

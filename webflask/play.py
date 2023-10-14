@@ -1,88 +1,72 @@
-#!/usr/bin/python3
-from flask import Blueprint, render_template, request, flash
-from flask_login import login_required, current_user
-from flask_uploads import UploadSet, IMAGES
-from werkzeug.utils import secure_filename
-from webflask.models import Image, Auction, Bid
-from webflask import db
 
-views = Blueprint('views', __name__)
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_uploads import UploadSet, configure_uploads, IMAGES
+from werkzeug.security import generate_password_hash
 
-@views.route('/', methods=['GET', 'POST'])
-def home_page():
-    show_div = True  # Set the value of show_div
-    return render_template("base.html", show_div=show_div, user=current_user)
+db = SQLAlchemy()
+DB_NAME = "kawodze"
 
-def get_appropriate_auction():
-    # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
-    auction = Auction.query.filter(
-        Auction.deleted is False  # Assuming you use a boolean field to mark auctions as deleted
-    ).order_by(Auction.created_at.desc()).first()
 
-    # If no active auction is found, you can create a new one or define your own logic.
-    if auction is None:
-        # Define your own logic here. For example, create a new auction or return None.
-        pass
+def create_app():
+    app = Flask(__name__)
+    # Configure the upload sets
+    uploaded_images = UploadSet('images', IMAGES)
 
-    return auction
+    app.config['SECRET_KEY'] = 'fullstack.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost/' + DB_NAME
+    # Directory for uploaded images
+    app.config['UPLOADED_IMAGES_DEST'] = 'static/images/uploads'
+    # Set up the upload directory and allowed extensions
+    app.config['UPLOADED_IMAGES_ALLOW'] = IMAGES
+    # Initialize the UploadSet with the app
+    configure_uploads(app, uploaded_images)
+    db.init_app(app)
 
-@views.route('/admin', methods=['GET', 'POST'])
-@login_required
-def admin_panel():
-    # Access the uploaded_images from the current app context
-    uploaded_images = UploadSet(
-        'images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
+    from webflask.views import views
+    from webflask.auth import auth
 
-    if request.method == 'POST':
-        title = request.form.get('title')
-        description = request.form.get('description')
-        start_time = request.form.get('start_time')
-        end_time = request.form.get('end_time')
-        starting_bid = request.form.get('starting_bid')
+    app.register_blueprint(views, url_prefix='/',
+                           uploaded_images=uploaded_images)
+    app.register_blueprint(auth, url_prefix='/')
 
-        bid_amount = request.form.get('amount')
+    from webflask.models import User
 
-        image = request.files.getlist('image')
+    with app.app_context():
+        db.create_all()
+        print('Created Database!')
 
-        if title and description and start_time and end_time and starting_bid:
-            # Handle the Auction form submission
-            # Create the Auction object and add it to the database
-            auction = Auction(title=title, description=description,
-                              start_time=start_time, end_time=end_time,
-                              starting_bid=starting_bid, user_id=current_user.id)
-            db.session.add(auction)
+        # Create an admin user if not already present
+        admin_user = User.query.filter_by(username='Admin').first()
+        password_hash = generate_password_hash(
+            '1Admin_pass', method='scrypt')
+
+        if not admin_user:
+            admin_user = User(
+                firstname='Pizzosta',
+                lastname='Ampah',
+                username='Admin',
+                email='admin@example.com',
+                password=password_hash,
+                is_admin=True
+            )
+            db.session.add(admin_user)
             db.session.commit()
-            flash('Auction created successfully!', category='success')
+            print('Admin Created!')
 
-        elif bid_amount:
-            # Handle the Bid form submission
-            bid_amount = float(bid_amount)
-            # Create the Bid object and add it to the database
-            auction = get_appropriate_auction()  # Get the appropriate auction
-            if auction:
-                bid = Bid(amount=bid_amount, user_id=current_user.id,
-                          auction_id=auction.id)
-                db.session.add(bid)
-                db.session.commit()
-                flash('Bid placed successfully!', category='success')
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
+    login_manager.session_protection = 'strong'
 
-        elif image:
-            # Get a list of uploaded files
-            for uploaded_file in image:
-                if uploaded_file:
-                    # Sanitize the filename using secure_filename
-                    filename = secure_filename(uploaded_file.filename)
-                    # Save the sanitized filename
-                    filename = uploaded_images.save(
-                        uploaded_file, name=filename)
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))
 
-                    # Create an Image object and associate it with the current user and auction
-                    image = Image(
-                        filename=filename, user_id=current_user.id, auction_id=auction.id)
-                    db.session.add(image)
-                    db.session.commit()
-                    flash('Images submitted successfully!', category='success')
-                else:
-                    flash('No images selected!', category='error')
+    return app
 
-    return render_template('admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images)
+
+#if __name__ == '__main__':
+    #app = create_app()
+    #app.run()

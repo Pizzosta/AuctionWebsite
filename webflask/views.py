@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from datetime import datetime
 from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
 from flask_uploads import UploadSet, IMAGES
@@ -6,7 +7,6 @@ from werkzeug.utils import secure_filename
 from webflask.models import User, Image, Auction, Bid
 from webflask import db
 from sqlalchemy.orm import validates
-from datetime import datetime
 
 views = Blueprint('views', __name__)
 
@@ -20,8 +20,7 @@ def home_page():
 @login_required
 def admin_panel():
     # Access the uploaded_images from the current app context
-    uploaded_images = UploadSet(
-        'images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
+    uploaded_images = UploadSet('images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
 
     if request.method == 'POST':
         title = request.form.get('title')
@@ -33,15 +32,6 @@ def admin_panel():
         bid_amount = request.form.get('amount')
 
         image = request.files.getlist('image')
-
-        # Print the form data to the console for debugging
-        print("Title:", title)
-        print("Description:", description)
-        print("Start Time:", start_time)
-        print("End Time:", end_time)
-        print("Starting Bid:", starting_bid)
-        print("Bid Amount:", bid_amount)
-        print("Images:", image)
 
         if title and description and start_time and end_time and starting_bid and bid_amount:
             if len(title) > 1 and len(description) > 1:
@@ -91,25 +81,25 @@ def admin_panel():
             if float(starting_bid) <= 0:
                 flash('Starting bid must be a positive value.', category='danger')
 
-                if image:
-                    # Get a list of uploaded files
-                    for uploaded_file in image:
-                        if uploaded_file:
-                            # Sanitize the filename using secure_filename
-                            filename = secure_filename(uploaded_file.filename)
-                            # Save the sanitized filename
-                            filename = uploaded_images.save(
-                                uploaded_file, name=filename)
+            if image:
+                # Get a list of uploaded files
+                for uploaded_file in image:
+                    if uploaded_file:
+                        # Sanitize the filename using secure_filename
+                        filename = secure_filename(uploaded_file.filename)
+                        # Save the sanitized filename
+                        filename = uploaded_images.save(
+                            uploaded_file, name=filename)
 
-                            # Create an Image object and associate it with the current user and auction
-                            image = Image(
-                                filename=filename, user_id=current_user.id, auction_id=auction.id)
-                            db.session.add(image)
-                            db.session.commit()
-                            flash('Images submitted successfully!',
-                                  category='success')
-                        else:
-                            flash('No images selected!', category='danger')
+                        # Create an Image object and associate it with the current user and auction
+                        image = Image(
+                            filename=filename, user_id=current_user.id, auction_id=auction.id)
+                        db.session.add(image)
+                        db.session.commit()
+                        flash('Images submitted successfully!',
+                                category='success')
+                    else:
+                        flash('No images selected!', category='danger')
 
         if bid_amount:
             # Handle the Bid form submission

@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
+import re 
+from flask import Blueprint, render_template, request, flash, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from webflask.models import User
@@ -51,30 +52,43 @@ def sign_up():
         email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
+        
+        error_messages = []
 
         user = User.query.filter_by(email=email).first()
         if user:
-            flash('Email already exists', category='danger')
-        elif len(email) < 4:
-            flash('Email must be greater than 4 characters.', category='danger')
-        elif len(firstname) < 2:
-            flash('Firstname must be greater than 1 character.', category='danger')
-        elif len(lastname) < 2:
-            flash('Lastname must be greater than 1 character.', category='danger')
-        elif len(username) < 2:
-            flash('Username must be greater than 1 character.', category='danger')
-        elif password != confirm_password:
-            flash('Passwords don\'t match.', category='danger')
-        elif len(password) < 7:
-            flash('Password should be at least 7 characters.', category='danger')
-        else:
-            new_user = User(firstname=firstname, lastname=lastname, username=username, email=email, password=generate_password_hash(
-                password, method='scrypt'))
+            error_messages.append('Email already exists')
+        if len(email) < 4:
+            error_messages.append('Email must be greater than 4 characters.')
+        if len(firstname) < 2:
+            error_messages.append('Firstname must be greater than 1 character.')
+        if len(lastname) < 2:
+            error_messages.append('Lastname must be greater than 1 character.')
+        if len(username) < 2:
+            error_messages.append('Username must be greater than 1 character.')
+        if password != confirm_password:
+            error_messages.append("Passwords don't match.")
+        if len(password) < 7:
+            error_messages.append('Password should be at least 7 characters.')
+        if not re.search(r'[A-Z]', password):
+            error_messages.append('Password should contain at least one uppercase letter.')
+        if not re.search(r'[a-z]', password):
+            error_messages.append('Password should contain at least one lowercase letter.')
+        if not re.search(r'\d', password):
+            error_messages.append('Password should contain at least one digit.')
+        if not re.search(r'[!@#$%^&*()_+]', password):
+            error_messages.append('Password should contain at least one special character.')
+
+        if not error_messages:
+            new_user = User(firstname=firstname, lastname=lastname, username=username, email=email, password=generate_password_hash(password, method='scrypt'))
 
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
             flash('Account created!', category='success')
             return redirect(url_for("views.home_page"))
+        else:
+            for message in error_messages:
+                flash(message, category='danger')
 
     return render_template("sign_up.html", user=current_user)

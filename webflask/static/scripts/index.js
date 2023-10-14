@@ -1,8 +1,10 @@
+// Tooltip
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
   return new bootstrap.Tooltip(tooltipTriggerEl)
 })
 
+// Top page
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -55,6 +57,8 @@ clearButton.addEventListener('click', function () {
   preview.innerHTML = ''; // Clear the previews
 });
 
+
+// Delete Auction
 function deleteAuction(auctionId) {
   fetch(`/delete-auction/${auctionId}`, {
     method: 'POST',
@@ -79,4 +83,23 @@ function deleteAuction(auctionId) {
     .catch(error => {
       // Fetch error, show an error message (optional)
       document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">Error occurred while deleting the auction.</div>';    })
+}
+
+//Check password client side validation
+function checkPasswordsMatch() {
+  const password = document.getElementById("password").value;
+  const confirm_password = document.getElementById("confirm_password").value;
+
+  if (password !== confirm_password) {
+    document.getElementById("password_match_error").style.display = "block";
+    return false;
+  } else {
+    document.getElementById("password_match_error").style.display = "none";
+    return true;
+  }
+}
+
+function validateForm() {
+  // Additional client-side validation checks can be added here.
+  return checkPasswordsMatch();
 }
