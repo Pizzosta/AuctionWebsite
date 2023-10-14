@@ -80,7 +80,16 @@ def admin_panel():
                     db.session.commit()
                     flash('Auction created successfully!', category='success')
             else:
-                flash('Title and description must be at least 2 characters long.', category='danger')
+                if len(title) <= 1:
+                    flash('Title must be at least 2 characters long.', category='danger')
+                if len(description) <= 1:
+                    flash('Description must be at least 2 characters long.', category='danger')
+            
+            if end_time <= start_time:
+                flash('End time must be after start time.', category='danger')
+
+            if float(starting_bid) <= 0:
+                flash('Starting bid must be a positive value.', category='danger')
 
                 if image:
                     # Get a list of uploaded files
