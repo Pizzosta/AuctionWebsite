@@ -54,3 +54,29 @@ clearButton.addEventListener('click', function () {
   imageInput.value = null; // Clear the file input
   preview.innerHTML = ''; // Clear the previews
 });
+
+function deleteAuction(auctionId) {
+  fetch(`/delete-auction/${auctionId}`, {
+    method: 'POST',
+    credentials: 'same-origin',
+  })
+    .then(response => {
+      if (response.status === 204) {
+        // Successful deletion, remove the row from the table
+        const row = document.getElementById(`auction-row-${auctionId}`);
+        if (row) {
+          row.parentNode.removeChild(row);
+        }
+        // Display success flash message (you can adjust this part to fit your HTML structure)
+        document.getElementById('flash-message').innerHTML = '<div class="alert alert-success">Auction deleted successfully!</div>';
+      } else if (response.status === 401) {
+        // Unauthorized, show an error message (optional)
+        document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">Unauthorized to delete this auction.</div>';
+      } else {
+        // Other error, show an error message (optional)
+        document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">An error occurred while deleting the auction.</div>';      }
+    })
+    .catch(error => {
+      // Fetch error, show an error message (optional)
+      document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">Error occurred while deleting the auction.</div>';    })
+}

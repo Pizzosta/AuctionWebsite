@@ -26,9 +26,9 @@ def login():
                 else:
                     return redirect(url_for('views.home_page'))
             else:
-                flash('Incorrect password, try again', category='error')
+                flash('Incorrect password, try again', category='danger')
         else:
-            flash('Email not found! Try creating an account first.', category='error')
+            flash('Email not found! Try creating an account first.', category='danger')
 
     return render_template('login.html', user=current_user)
 
@@ -54,19 +54,19 @@ def sign_up():
 
         user = User.query.filter_by(email=email).first()
         if user:
-            flash('Email already exists', category='error')
+            flash('Email already exists', category='danger')
         elif len(email) < 4:
-            flash('Email must be greater than 4 characters.', category='error')
+            flash('Email must be greater than 4 characters.', category='danger')
         elif len(firstname) < 2:
-            flash('Firstname must be greater than 1 character.', category='error')
+            flash('Firstname must be greater than 1 character.', category='danger')
         elif len(lastname) < 2:
-            flash('Lastname must be greater than 1 character.', category='error')
+            flash('Lastname must be greater than 1 character.', category='danger')
         elif len(username) < 2:
-            flash('Username must be greater than 1 character.', category='error')
+            flash('Username must be greater than 1 character.', category='danger')
         elif password != confirm_password:
-            flash('Passwords don\'t match.', category='error')
+            flash('Passwords don\'t match.', category='danger')
         elif len(password) < 7:
-            flash('Password should be at least 7 characters.', category='error')
+            flash('Password should be at least 7 characters.', category='danger')
         else:
             new_user = User(firstname=firstname, lastname=lastname, username=username, email=email, password=generate_password_hash(
                 password, method='scrypt'))

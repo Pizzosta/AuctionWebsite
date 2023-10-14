@@ -86,7 +86,7 @@ def admin_panel():
                 flash('Bid placed successfully!', category='success')
             else:
                 flash(
-                    'No active auctions available. Create a new auction first.', category='error')
+                    'No active auctions available. Create a new auction first.', category='danger')
 
         if image:
             # Get a list of uploaded files
@@ -105,6 +105,22 @@ def admin_panel():
                     db.session.commit()
                     flash('Images submitted successfully!', category='success')
                 else:
-                    flash('No images selected!', category='error')
+                    flash('No images selected!', category='danger')
 
     return render_template('admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images)
+
+@views.route('/delete-auction/<int:id>', methods=['POST'])
+@login_required
+def delete_auction(id):
+    auction = Auction.query.get(id)
+    #auction = Auction.query.join(User).filter(User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()
+
+    # Check if the auction exists and belongs to the current user
+    if auction and auction.user_id == current_user.id:
+        db.session.delete(auction)
+        db.session.commit()
+        #flash('Auction deleted successfully!', category='success')
+        return '', 204  # Return 'No Content' status for successful deletion
+    else:
+        #flash('Unauthorized to delete this auction.', category='danger')
+        return 'Unauthorized', 401  # Return 'Unauthorized' status

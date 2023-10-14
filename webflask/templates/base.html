@@ -66,7 +66,7 @@
     </nav>
 
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
+    <!--{% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
     {% if category == 'error' %}
@@ -82,7 +82,20 @@
     {% endif %}
     {% endfor %}
     {% endif %}
-    {% endwith %}
+    {% endwith %}-->
+
+    <div id="flash-message">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
 
     {% if show_div %}
     <div class="container">
@@ -127,7 +140,7 @@
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
                 vulputate sapien luctus.</p>
         </div>
-        
+
         <div>
             <ul class="list-unstyled">
                 {% for auction in user.auctions %}

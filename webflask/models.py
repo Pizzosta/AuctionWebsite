@@ -1,4 +1,5 @@
 from datetime import datetime
+from flask import flash
 from sqlalchemy.orm import validates
 from flask_login import UserMixin
 from webflask import db
@@ -16,7 +17,7 @@ class User(db.Model, UserMixin):
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
 
     # Define a one-to-many relationship with auctions (one user can create multiple auctions)
-    auctions = db.relationship('Auction', backref='user', lazy=True)
+    auctions = db.relationship('Auction', backref='user', lazy=True, cascade='all, delete-orphan')
 
     # Define a one-to-many relationship with bids (one user can place multiple bids)
     bids = db.relationship('Bid', backref='user', lazy=True)
@@ -62,6 +63,7 @@ class Auction(db.Model):
     def validate_end_time(self, key, end_time):
         #print(f"Validating {key} with value: {end_time}")
         if end_time <= self.start_time:
+            flash('End time must be after start time.', category='danger')
             raise ValueError("End time must be after start time.")
         return end_time
 
@@ -77,7 +79,7 @@ class Bid(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     # Define a many-to-one relationship with auctions (many bids can be placed on one auction)
-    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=False)
+    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id', ondelete='CASCADE'), nullable=False)
 
 class Image(db.Model):
     #__tablename__ = 'Image'
@@ -86,7 +88,7 @@ class Image(db.Model):
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
 
      # Define a many-to-one relationship with auctions (many images can belong to one auction)
-    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=False)
+    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id', ondelete='CASCADE'), nullable=False)
     #auction = db.relationship('Auction', backref='images', lazy=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     #auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=True)
