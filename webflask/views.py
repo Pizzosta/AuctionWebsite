@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from webflask.models import User, Image, Auction, Bid
 from webflask import db
 from sqlalchemy.orm import validates
+from datetime import datetime
 
 views = Blueprint('views', __name__)
 
@@ -14,21 +15,6 @@ views = Blueprint('views', __name__)
 def home_page():
     show_div = True  # Set the value of show_div
     return render_template("base.html", show_div=show_div, user=current_user)
-
-# def get_appropriate_auction():
-    # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
-    auction = Auction.query.filter(
-        Auction.deleted is False  # Assuming you use a boolean field to mark auctions as deleted
-    ).order_by(Auction.created_at.desc()).first()
-
-    # If no active auction is found, you can create a new one or define your own logic.
-    if auction is None:
-        # Define your own logic here. For example, create a new auction or return None.
-        pass
-
-    print("Appropriate Auction:", auction)
-    return auction
-
 
 @views.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -58,35 +44,43 @@ def admin_panel():
         print("Images:", image)
 
         if title and description and start_time and end_time and starting_bid and bid_amount:
-            # Validate the end time and starting bid
-            @validates('end_time')
-            def validate_end_time(end_time, start_time):
-                if end_time <= start_time:
-                    raise ValueError("End time must be after start time.")
-                return end_time
-            
-            @validates('starting_bid')
-            def validate_starting_bid(starting_bid):
+            if len(title) > 1 and len(description) > 1:
+                # Validate the end time and starting bid
+                @validates('end_time')
+                def validate_end_time(end_time, start_time):
+                    if end_time <= start_time:
+                        raise ValueError("End time must be after start time.")
+                    return end_time
+                
+                @validates('starting_bid')
+                def validate_starting_bid(starting_bid):
+                    starting_bid = float(starting_bid)
+                    if starting_bid <= 0:
+                        raise ValueError("Starting bid must be a positive value.")
+                    return starting_bid
+                
+                # Convert form values to their appropriate data types
+                start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+                end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
                 starting_bid = float(starting_bid)
-                if starting_bid <= 0:
-                    raise ValueError("Starting bid must be a positive value.")
-                return starting_bid
 
-            try:
-                end_time = validate_end_time(end_time, start_time)
-                starting_bid = validate_starting_bid(starting_bid)
-            except ValueError as e:
-                # Create a flash message for validation error
-                flash(str(e), 'danger')
+                try:
+                    end_time = validate_end_time(end_time, start_time)
+                    starting_bid = validate_starting_bid(starting_bid)
+                except ValueError as e:
+                    # Create a flash message for validation error
+                    flash(str(e), 'danger')
+                else:
+                    # Handle the Auction form submission
+                    # Create the Auction object and add it to the database
+                    auction = Auction(title=title, description=description,
+                                    start_time=start_time, end_time=end_time,
+                                    starting_bid=starting_bid, user_id=current_user.id)
+                    db.session.add(auction)
+                    db.session.commit()
+                    flash('Auction created successfully!', category='success')
             else:
-                # Handle the Auction form submission
-                # Create the Auction object and add it to the database
-                auction = Auction(title=title, description=description,
-                                  start_time=start_time, end_time=end_time,
-                                  starting_bid=starting_bid, user_id=current_user.id)
-                db.session.add(auction)
-                db.session.commit()
-                flash('Auction created successfully!', category='success')
+                flash('Title and description must be at least 2 characters long.', category='danger')
 
                 if image:
                     # Get a list of uploaded files
@@ -111,17 +105,14 @@ def admin_panel():
         if bid_amount:
             # Handle the Bid form submission
             bid_amount = float(bid_amount)
+            starting_bid = float(starting_bid)
+
             # Validate the bid amount
             if bid_amount >= starting_bid:
-                def get_appropriate_auction():
-                    # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
-                    auction = Auction.query.join(User).filter(
-                        User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()
-
-                    print("Appropriate Auction:", auction)
-                    return auction
+                # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
                 # Create the Bid object and add it to the database
-                auction = get_appropriate_auction()  # Get the appropriate auction
+                auction = auction = Auction.query.join(User).filter(
+                        User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()  # Get the appropriate auction
                 if auction:
                     bid = Bid(amount=bid_amount, user_id=current_user.id,
                             auction_id=auction.id)
@@ -146,8 +137,6 @@ def delete_auction(id):
     if auction and auction.user_id == current_user.id:
         db.session.delete(auction)
         db.session.commit()
-        # flash('Auction deleted successfully!', category='success')
         return '', 204  # Return 'No Content' status for successful deletion
     else:
-        # flash('Unauthorized to delete this auction.', category='danger')
         return 'Unauthorized', 401  # Return 'Unauthorized' status
