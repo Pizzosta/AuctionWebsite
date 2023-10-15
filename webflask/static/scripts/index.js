@@ -91,10 +91,10 @@ function checkPasswordsMatch() {
   const confirm_password = document.getElementById("confirm_password").value;
 
   if (password !== confirm_password) {
-    document.getElementById("password_match_error").style.display = "block";
+    document.getElementById("flash-message").style.display = "block";
     return false;
   } else {
-    document.getElementById("password_match_error").style.display = "none";
+    document.getElementById("flash-message").style.display = "none";
     return true;
   }
 }

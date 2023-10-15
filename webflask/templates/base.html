@@ -84,7 +84,7 @@
     {% endif %}
     {% endwith %}-->
 
-    <div id="flash-message password_match_error">
+    <div id="flash-message">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for category, message in messages %}

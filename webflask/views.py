@@ -1,12 +1,13 @@
 #!/usr/bin/python3
+import os
 from datetime import datetime
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, current_app
 from flask_login import login_required, current_user
 from flask_uploads import UploadSet, IMAGES
 from werkzeug.utils import secure_filename
+from sqlalchemy.orm import validates
 from webflask.models import User, Image, Auction, Bid
 from webflask import db
-from sqlalchemy.orm import validates
 
 views = Blueprint('views', __name__)
 
@@ -134,6 +135,16 @@ def delete_auction(id):
 
     # Check if the auction exists and belongs to the current user
     if auction and auction.user_id == current_user.id:
+        # Get the associated images for this auction
+        images = Image.query.filter_by(auction_id=id).all()
+
+        # Delete the associated images from both the file system and the database
+        for image in images:
+            # Build the full path to the image file
+            image_path = os.path.join(current_app.config['UPLOADED_IMAGES_DEST'], image.filename)
+            if os.path.exists(image_path):
+                os.remove(image_path)  # Delete the image file
+
         db.session.delete(auction)
         db.session.commit()
         return '', 204  # Return 'No Content' status for successful deletion
