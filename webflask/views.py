@@ -102,7 +102,8 @@ def admin_panel():
                     else:
                         flash('No images selected!', category='danger')
 
-        if bid_amount:
+        #if bid_amount:
+        if bid_amount is not None and starting_bid is not None:
             # Handle the Bid form submission
             bid_amount = float(bid_amount)
             starting_bid = float(starting_bid)
@@ -111,7 +112,7 @@ def admin_panel():
             if bid_amount >= starting_bid:
                 # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
                 # Create the Bid object and add it to the database
-                auction = auction = Auction.query.join(User).filter(
+                auction = Auction.query.join(User).filter(
                         User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()  # Get the appropriate auction
                 if auction:
                     bid = Bid(amount=bid_amount, user_id=current_user.id,
