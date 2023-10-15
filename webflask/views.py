@@ -22,7 +22,7 @@ def home_page():
 @login_required
 def account():
     if current_user.is_admin:
-            return redirect(url_for('views.admin_panel'))
+        return redirect(url_for('views.admin_panel'))
     show_search = False
     return render_template('account.html', user=current_user, username=current_user.username, show_search=show_search)
 
@@ -33,6 +33,8 @@ def admin_panel():
     # Access the uploaded_images from the current app context
     uploaded_images = UploadSet(
         'images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
+
+    auction = None  # Initialize the 'auction' variable
 
     if request.method == 'POST':
         title = request.form.get('title')
@@ -45,7 +47,7 @@ def admin_panel():
 
         image = request.files.getlist('image')
 
-        if title and description and start_time and end_time and starting_bid and bid_amount:
+        if title and description and start_time and end_time and starting_bid:
             if len(title) > 1 and len(description) > 1:
                 # Validate the end time and starting bid
                 @validates('end_time')
@@ -91,7 +93,7 @@ def admin_panel():
                           category='danger')
 
             if end_time <= start_time:
-                flash('End time must be after start time.', category='danger')
+                flash('End time must be after the start time.', category='danger')
 
             if float(starting_bid) <= 0:
                 flash('Starting bid must be a positive value.', category='danger')
@@ -107,36 +109,34 @@ def admin_panel():
                             uploaded_file, name=filename)
 
                         # Create an Image object and associate it with the current user and auction
-                        image = Image(
-                            filename=filename, user_id=current_user.id, auction_id=auction.id)
-                        db.session.add(image)
-                        db.session.commit()
-                        flash('Images submitted successfully!',
-                              category='success')
-                    else:
-                        flash('No images selected!', category='danger')
+                        if auction:
+                            image = Image(
+                                filename=filename, user_id=current_user.id, auction_id=auction.id)
+                            db.session.add(image)
+                            db.session.commit()
+                            flash('Images submitted successfully!',
+                                  category='success')
+                        else:
+                            flash('No active auction to associate images with!', category='danger')
 
-        # if bid_amount:
-        if bid_amount is not None and starting_bid is not None:
-            # Handle the Bid form submission
+        if bid_amount and bid_amount.isdigit():
             bid_amount = float(bid_amount)
             starting_bid = float(starting_bid)
 
-            # Validate the bid amount
-            if bid_amount >= starting_bid:
-                # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
-                # Create the Bid object and add it to the database
-                auction = Auction.query.join(User).filter(
-                    User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()  # Get the appropriate auction
-                if auction:
+            if auction:
+                if bid_amount >= auction.starting_bid:
                     bid = Bid(amount=bid_amount, user_id=current_user.id,
                               auction_id=auction.id)
                     db.session.add(bid)
                     db.session.commit()
                     flash('Bid placed successfully!', category='success')
+                else:
+                    flash(
+                        'Bid amount must be equal to or greater than the starting bid.', category='danger')
             else:
-                flash(
-                    'Bid amount must be equal to or greater than the starting bid.', category='danger')
+                flash('No active auction to place a bid!', category='danger')
+        else:
+            flash('No bid placed.', category='danger')
 
     return render_template('admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images)
 

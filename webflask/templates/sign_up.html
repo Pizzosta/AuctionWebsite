@@ -5,6 +5,7 @@
         <h2>SIGN UP</h2>
         <small>Already have an account? <a href="/login">Login</a></small><br><br>
         <form method="POST" onsubmit="return validateForm()" autocomplete="on">
+            {{ form.hidden_tag() }}
             <div class="mb-3">
                 <label for="firstname">Firstname:</label>
                 <input type="text" class="form-control" id="firstname" name="firstname" minlength="2" maxlength="100"

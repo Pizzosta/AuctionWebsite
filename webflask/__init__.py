@@ -27,7 +27,6 @@ def create_app():
         os.makedirs(uploads_directory)
 
     # Configure the upload sets
-    # , default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
     uploaded_images = UploadSet('images', IMAGES)
     # Initialize the UploadSet with the app
     configure_uploads(app, uploaded_images)

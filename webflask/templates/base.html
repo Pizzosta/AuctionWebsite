@@ -44,7 +44,7 @@
             <ul class="nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link text-black hover-blue" href="/account">Account</a>
+                    <a class="nav-link text-black hover-blue" href="/admin">Account</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-black hover-blue" href="/logout">Logout</a>
@@ -216,6 +216,19 @@
             {% endif %}
             {% endfor %}
         </div>
+        
+        <div>
+            <h2>Auctions by Admin Users</h2>
+            <ul class="list-unstyled">
+                {% for auction in user.auctions %}
+                
+                <!-- Your auction content created by admins here -->
+                <p> {{ auction.description }}</p>
+                
+                {% endfor %}
+            </ul>
+        </div>
+        
 
     </div>
     {% endif %}
