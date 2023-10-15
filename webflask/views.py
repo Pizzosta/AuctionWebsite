@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os
 from datetime import datetime
-from flask import Blueprint, render_template, request, flash, current_app
+from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for
 from flask_login import login_required, current_user
 from flask_uploads import UploadSet, IMAGES
 from werkzeug.utils import secure_filename
@@ -17,11 +17,22 @@ def home_page():
     show_div = True  # Set the value of show_div
     return render_template("base.html", show_div=show_div, user=current_user)
 
+
+@views.route('/account', methods=['POST', 'GET'])
+@login_required
+def account():
+    if current_user.is_admin:
+            return redirect(url_for('views.admin_panel'))
+    show_search = False
+    return render_template('account.html', user=current_user, username=current_user.username, show_search=show_search)
+
+
 @views.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin_panel():
     # Access the uploaded_images from the current app context
-    uploaded_images = UploadSet('images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
+    uploaded_images = UploadSet(
+        'images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
 
     if request.method == 'POST':
         title = request.form.get('title')
@@ -42,14 +53,15 @@ def admin_panel():
                     if end_time <= start_time:
                         raise ValueError("End time must be after start time.")
                     return end_time
-                
+
                 @validates('starting_bid')
                 def validate_starting_bid(starting_bid):
                     starting_bid = float(starting_bid)
                     if starting_bid <= 0:
-                        raise ValueError("Starting bid must be a positive value.")
+                        raise ValueError(
+                            "Starting bid must be a positive value.")
                     return starting_bid
-                
+
                 # Convert form values to their appropriate data types
                 start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
                 end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
@@ -65,17 +77,19 @@ def admin_panel():
                     # Handle the Auction form submission
                     # Create the Auction object and add it to the database
                     auction = Auction(title=title, description=description,
-                                    start_time=start_time, end_time=end_time,
-                                    starting_bid=starting_bid, user_id=current_user.id)
+                                      start_time=start_time, end_time=end_time,
+                                      starting_bid=starting_bid, user_id=current_user.id)
                     db.session.add(auction)
                     db.session.commit()
                     flash('Auction created successfully!', category='success')
             else:
                 if len(title) <= 1:
-                    flash('Title must be at least 2 characters long.', category='danger')
+                    flash('Title must be at least 2 characters long.',
+                          category='danger')
                 if len(description) <= 1:
-                    flash('Description must be at least 2 characters long.', category='danger')
-            
+                    flash('Description must be at least 2 characters long.',
+                          category='danger')
+
             if end_time <= start_time:
                 flash('End time must be after start time.', category='danger')
 
@@ -98,11 +112,11 @@ def admin_panel():
                         db.session.add(image)
                         db.session.commit()
                         flash('Images submitted successfully!',
-                                category='success')
+                              category='success')
                     else:
                         flash('No images selected!', category='danger')
 
-        #if bid_amount:
+        # if bid_amount:
         if bid_amount is not None and starting_bid is not None:
             # Handle the Bid form submission
             bid_amount = float(bid_amount)
@@ -113,17 +127,16 @@ def admin_panel():
                 # Select the last created auction based on the 'created_at' attribute (assuming it's a DateTime field)
                 # Create the Bid object and add it to the database
                 auction = Auction.query.join(User).filter(
-                        User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()  # Get the appropriate auction
+                    User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()  # Get the appropriate auction
                 if auction:
                     bid = Bid(amount=bid_amount, user_id=current_user.id,
-                            auction_id=auction.id)
+                              auction_id=auction.id)
                     db.session.add(bid)
                     db.session.commit()
                     flash('Bid placed successfully!', category='success')
             else:
                 flash(
                     'Bid amount must be equal to or greater than the starting bid.', category='danger')
-
 
     return render_template('admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images)
 
@@ -142,7 +155,8 @@ def delete_auction(id):
         # Delete the associated images from both the file system and the database
         for image in images:
             # Build the full path to the image file
-            image_path = os.path.join(current_app.config['UPLOADED_IMAGES_DEST'], image.filename)
+            image_path = os.path.join(
+                current_app.config['UPLOADED_IMAGES_DEST'], image.filename)
             if os.path.exists(image_path):
                 os.remove(image_path)  # Delete the image file
 
