@@ -126,24 +126,32 @@ def admin_panel():
                             flash(
                                 'No active auction to associate images with!', category='danger')
 
-        if bid_amount and bid_amount.isdigit() and auction_id:
-            # Ensure bid_amount is a valid number
+        if bid_amount:
+            # Convert bid_amount to a float
             try:
                 bid_amount = float(bid_amount)
             except ValueError:
                 flash('Bid amount must be a valid number.', category='danger')
+                bid_amount = None
 
-            # Retrieve the associated auction's starting bid
-            auction = Auction.query.get(auction_id)
+            # Ensure starting_bid is not None and convert it to a float
+            if starting_bid is not None:
+                try:
+                    starting_bid = float(starting_bid)
+                except ValueError:
+                    flash('Starting bid must be a valid number.', category='danger')
+                    starting_bid = None
+            else:
+                flash('Starting bid must be a valid number.', category='danger')
 
         # Retrieve the associated auction
-        #if auction_id:
+        if auction_id:
             print("Retrieved auction_id:", auction_id)
-            #auction = Auction.query.get(auction_id)
+            auction = Auction.query.get(auction_id)
             
             if auction:
-                if bid_amount >= auction.starting_bid:
-                #if bid_amount is not None and starting_bid is not None and bid_amount >= starting_bid:
+                #if bid_amount >= auction.starting_bid:
+                if bid_amount is not None and starting_bid is not None and bid_amount >= starting_bid:
                     # Create a new Bid object associated with the auction
                     bid = Bid(amount=bid_amount, user_id=current_user.id,
                                 auction_id=auction.id)
