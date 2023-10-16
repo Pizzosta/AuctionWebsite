@@ -135,13 +135,13 @@ def admin_panel():
             auction = Auction.query.get(auction_id)
 
             print("Retrieved auction_id:", auction_id)
-            
+
             if auction:
                 if bid_amount >= auction.starting_bid:
-                #if bid_amount is not None and starting_bid is not None and bid_amount >= starting_bid:
+                    # if bid_amount is not None and starting_bid is not None and bid_amount >= starting_bid:
                     # Create a new Bid object associated with the auction
                     bid = Bid(amount=bid_amount, user_id=current_user.id,
-                                auction_id=auction.id)
+                              auction_id=auction.id)
                     db.session.add(bid)
                     db.session.commit()
                     flash('Bid placed successfully!', category='success')
@@ -152,10 +152,12 @@ def admin_panel():
                 flash('No active auction to place a bid!', category='danger')
         else:
             flash('Invalid auction ID provided.', category='danger')
-    
-    all_auctions = Auction.query.all()  # Fetch all auctions from all users
 
-    return render_template('admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, all_auctions=all_auctions)
+    all_auctions = Auction.query.all()  # Fetch all auctions from all users
+    all_bids = Bid.query.all()
+
+
+    return render_template('admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, all_auctions=all_auctions, all_bids=all_bids)
 
 
 @views.route('/user-admin', methods=['GET', 'POST'])
@@ -177,6 +179,9 @@ def user_admin_panel():
         bid_amount = request.form.get('amount')
 
         image = request.files.getlist('image')
+
+        # retrieve auction.id in the base.html for bids
+        auction_id = request.form.get('auction_id')
 
         if title and description and start_time and end_time and starting_bid:
             if len(title) > 1 and len(description) > 1:
@@ -250,8 +255,39 @@ def user_admin_panel():
                         else:
                             flash(
                                 'No active auction to associate images with!', category='danger')
+                            
+        if bid_amount and bid_amount.isdigit() and auction_id:
+            # Ensure bid_amount is a valid number
+            try:
+                bid_amount = float(bid_amount)
+            except ValueError:
+                flash('Bid amount must be a valid number.', category='danger')
 
-    return render_template('user_admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images)
+            # Retrieve the associated auction's starting bid
+            auction = Auction.query.get(auction_id)
+
+            print("Retrieved auction_id:", auction_id)
+
+            if auction:
+                if bid_amount >= auction.starting_bid:
+                    # if bid_amount is not None and starting_bid is not None and bid_amount >= starting_bid:
+                    # Create a new Bid object associated with the auction
+                    bid = Bid(amount=bid_amount, user_id=current_user.id,
+                              auction_id=auction.id)
+                    db.session.add(bid)
+                    db.session.commit()
+                    flash('Bid placed successfully!', category='success')
+                else:
+                    flash(
+                        'Bid amount must be equal to or greater than the starting bid.', category='danger')
+            else:
+                flash('No active auction to place a bid!', category='danger')
+        else:
+            flash('Invalid auction ID provided.', category='danger')
+
+    user_bids = Bid.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('user_admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, user_bids=user_bids)
 
 
 @views.route('/delete-auction/<int:id>', methods=['POST'])

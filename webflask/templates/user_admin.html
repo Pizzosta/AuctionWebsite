@@ -33,7 +33,17 @@
     <button type="submit">Submit</button>
 
 </form>
-
+<div>
+<h2>Your Bids</h2>
+<ul>
+  {% for bid in user_bids %}
+    <li>
+      Auction ID: {{ bid.auction_id }}<br>
+      Amount: {{ bid.amount }}<br>
+    </li>
+  {% endfor %}
+</ul>
+</div>
 <div>
     <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
     <ul class="list">

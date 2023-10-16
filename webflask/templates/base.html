@@ -148,7 +148,7 @@
                             {% endif %}
                             {% endfor %}
 
-                            <form method="POST" action="{{ url_for('views.admin_panel') }}">
+                            <form method="POST" action="{{ url_for('views.user_admin_panel') }}">
                                 <input type="hidden" name="auction_id" value="{{ auction.id }}">
                                 <div class="input-group mb-3 mt-3">
                                     <span class="input-group-text">Your Bid:</span>
