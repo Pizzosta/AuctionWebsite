@@ -45,13 +45,11 @@ def admin_panel():
         starting_bid = request.form.get('starting_bid')
 
         bid_amount = request.form.get('amount')
-        print("Retrieved bid_amount:", bid_amount)
 
         image = request.files.getlist('image')
 
         # retrieve auction.id in the base.html for bids
         auction_id = request.form.get('auction_id')
-        print("Retrieved auction_id:", auction_id)
 
         if title and description and start_time and end_time and starting_bid:
             if len(title) > 1 and len(description) > 1:
@@ -136,10 +134,7 @@ def admin_panel():
             # Retrieve the associated auction's starting bid
             auction = Auction.query.get(auction_id)
 
-        # Retrieve the associated auction
-        #if auction_id:
             print("Retrieved auction_id:", auction_id)
-            #auction = Auction.query.get(auction_id)
             
             if auction:
                 if bid_amount >= auction.starting_bid:
