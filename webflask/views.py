@@ -247,8 +247,8 @@ def delete_auction(id):
     auction = Auction.query.get(id)
     # auction = Auction.query.join(User).filter(User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()
 
-    # Check if the auction exists and belongs to the current user
-    if auction and auction.user_id == current_user.id:
+    # Check if the auction exists and belongs to the current user & super delete for admin
+    if current_user.is_admin or (auction and auction.user_id == current_user.id):
         # Get the associated images for this auction
         images = Image.query.filter_by(auction_id=id).all()
 

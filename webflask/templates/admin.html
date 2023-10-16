@@ -57,6 +57,7 @@
             {{ auction.start_time }}
             {{ auction.end_time }}
             {{ auction.starting_bid }}
+            {{ auction.user.username }}
 
         </li>
         {% endfor %}
@@ -67,6 +68,7 @@
     <table class="table table-bordered">
         <thead>
             <tr>
+                <th>Creator</th>
                 <th>Title</th>
                 <th>Description</th>
                 <th>Created At</th>
@@ -80,6 +82,7 @@
             {% for auction in all_auctions %}
             
             <tr id="auction-row-{{ auction.id }}">
+                <td>{{ auction.user.username }}</td>
                 <td>{{ auction.title }}</td>
                 <td>{{ auction.description }}</td>
                 <td>{{ auction.created_at }}</td>
