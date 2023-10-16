@@ -47,9 +47,9 @@
 </form>
 
 <div>
+    <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
     <ul class="list">
         {% for auction in user.auctions %}
-        
         <li>
             {{ auction.title }}
             {{ auction.description }}
@@ -59,11 +59,11 @@
             {{ auction.starting_bid }}
 
         </li>
-        
         {% endfor %}
     </ul>
 </div>
 <div>
+    <h5 class="text-center">ALL AUCTIONS IN THE DATABASE</h5>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -78,7 +78,7 @@
         </thead>
         <tbody>
             {% for auction in user.auctions %}
-            {% if auction.user.is_admin %}
+            
             <tr id="auction-row-{{ auction.id }}">
                 <td>{{ auction.title }}</td>
                 <td>{{ auction.description }}</td>
@@ -90,38 +90,10 @@
                         onclick="deleteAuction({{ auction.id }})"></button>
                 </td>
             </tr>
-            {% endif %}
+            
             {% endfor %}
         </tbody>
     </table>
 </div>
 
-<!--<table class="table" id="resultsTable">
-    <thead>
-        <tr>
-            <th>Service</th>
-            <th>IP</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for test_request in user.test_requests %}
-        <tr id="test-request-row-{{ test_request.request_id }}">
-            <td>
-                <ul class="list-group-numbered">
-                    {% for service in test_request.services %}
-                    <li class="list-group-item">
-                        {{ service.name }}
-                    </li>
-                    {% endfor %}
-                </ul>
-            </td>
-            <td>{{ test_request.ip }}</td>
-            <td> <button type="button" class="btn-close float-end"
-                    onclick="deleteTestRequest({{ test_request.request_id }})"></button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>-->
 {% endblock %}

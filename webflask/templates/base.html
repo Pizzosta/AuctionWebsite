@@ -139,8 +139,7 @@
         <div>
             <h4 class="text-center"> LIVE AUCTIONS </h4>
             <ul class="list-unstyled">
-                {% for auction in user.auctions %}
-                {% if auction.user.is_admin %}
+                {% for auction in all_auctions %}
                 <li class="p-3 m-2 border rounded">
                     <h4 class="text-center">ABOUT THIS AUCTION</h4>
                     <div class="container row">
@@ -187,7 +186,6 @@
                         </ul>
                     </div>
                 </li>
-                {% endif %}
                 {% endfor %}
             </ul>
         </div>
@@ -218,9 +216,9 @@
         </div>
         
         <div>
-            <h2>Auctions by Admin Users</h2>
+            <h2>ALL AUCTIONS IN THE DATABASE</h2>
             <ul class="list-unstyled">
-                {% for auction in user.auctions %}
+                {% for auction in all_auctions %}
                 
                 <!-- Your auction content created by admins here -->
                 <p> {{ auction.description }}</p>

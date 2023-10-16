@@ -15,7 +15,8 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET', 'POST'])
 def home_page():
     show_div = True  # Set the value of show_div
-    return render_template("base.html", show_div=show_div, user=current_user)
+    all_auctions = Auction.query.all() # Fetch all auctions from all users
+    return render_template("base.html", show_div=show_div, user=current_user, all_auctions=all_auctions)
 
 
 @views.route('/account', methods=['POST', 'GET'])
