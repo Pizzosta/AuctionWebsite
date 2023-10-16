@@ -34,15 +34,15 @@
 
 </form>
 <div>
-<h2>Your Bids</h2>
-<ul>
-  {% for bid in user_bids %}
-    <li>
-      Auction ID: {{ bid.auction_id }}<br>
-      Amount: {{ bid.amount }}<br>
-    </li>
-  {% endfor %}
-</ul>
+    <h2>Your Bids</h2>
+    <ul>
+        {% for bid in user_bids %}
+        <li>
+            Auction ID: {{ bid.auction_id }}<br>
+            Amount: {{ bid.amount }}<br>
+        </li>
+        {% endfor %}
+    </ul>
 </div>
 <div>
     <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
@@ -76,7 +76,7 @@
         </thead>
         <tbody>
             {% for auction in user.auctions %}
-            
+
             <tr id="auction-row-{{ auction.id }}">
                 <td>{{ auction.title }}</td>
                 <td>{{ auction.description }}</td>
@@ -84,11 +84,10 @@
                 <td>{{ auction.start_time }}</td>
                 <td>{{ auction.end_time }}</td>
                 <td>{{ auction.starting_bid }}</td>
-                <td> <button type="button" class="btn-close"
-                        onclick="deleteAuction({{ auction.id }})"></button>
+                <td> <button type="button" class="btn-close" onclick="deleteAuction({{ auction.id }})"></button>
                 </td>
             </tr>
-            
+
             {% endfor %}
         </tbody>
     </table>
