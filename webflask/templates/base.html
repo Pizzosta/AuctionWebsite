@@ -44,7 +44,7 @@
             <ul class="nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link text-black hover-blue" href="/admin">Account</a>
+                    <a class="nav-link text-black hover-blue" href="/account">Account</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-black hover-blue" href="/logout">Logout</a>
@@ -64,25 +64,6 @@
 
         </div>
     </nav>
-
-
-    <!--{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    {% if category == 'error' %}
-    <div class="alert alert-danger alert-dismissible fade show">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    {% else %}
-    <div class="alert alert-success alert-dismissible fade show">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
-    {% endwith %}-->
 
     <div id="flash-message">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -140,6 +121,7 @@
             <h4 class="text-center"> LIVE AUCTIONS </h4>
             <ul class="list-unstyled">
                 {% for auction in all_auctions %}
+                {% if current_user.is_admin or auction.user != current_user %}  <!--Skip auctions created by the current user-->
                 <li class="p-3 m-2 border rounded">
                     <h4 class="text-center">ABOUT THIS AUCTION</h4>
                     <div class="container row">
@@ -173,6 +155,7 @@
                                 </div>
                                 <button class="btn btn-primary">Place Bid</button>
                             </form>
+                            
                         </div>
                     </div>
                     <div class="pb-3">
@@ -186,6 +169,7 @@
                         </ul>
                     </div>
                 </li>
+                {% endif %}
                 {% endfor %}
             </ul>
         </div>
@@ -200,34 +184,6 @@
                 <li class="list-group-item">Bidder 5 - &#8373; 500</li>
             </ul>
         </div>
-        <div class="pb-3">
-            {% for auction in user.auctions %}
-            {% if auction.user.is_admin %}
-            <h2>Top Bids</h2>
-            <ul class="list-group">
-                {% for bid in auction.bids %}
-                <li class="list-group-item">
-                    User: {{ bid.user.username }} - Amount: &#8373; {{ bid.amount }}
-                </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% endfor %}
-        </div>
-        
-        <div>
-            <h2>ALL AUCTIONS IN THE DATABASE</h2>
-            <ul class="list-unstyled">
-                {% for auction in all_auctions %}
-                
-                <!-- Your auction content created by admins here -->
-                <p> {{ auction.description }}</p>
-                
-                {% endfor %}
-            </ul>
-        </div>
-        
-
     </div>
     {% endif %}
 

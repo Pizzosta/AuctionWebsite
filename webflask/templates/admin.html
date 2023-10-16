@@ -47,9 +47,9 @@
 </form>
 
 <div>
-    <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
+    <h5 class="text-center">ALL AUCTIONS IN THE DATABASE</h5>
     <ul class="list">
-        {% for auction in user.auctions %}
+        {% for auction in all_auctions %}
         <li>
             {{ auction.title }}
             {{ auction.description }}
@@ -77,7 +77,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for auction in user.auctions %}
+            {% for auction in all_auctions %}
             
             <tr id="auction-row-{{ auction.id }}">
                 <td>{{ auction.title }}</td>
