@@ -1,0 +1,87 @@
+{% extends "base.html" %}{% block title %}User Admin{% endblock %}
+{% block content %}
+<div class="container-fluid mb-3">
+    <h4 class="text-center m-2">Welcome, <strong>{{ username }}!</strong></h4>
+</div>
+
+<form method="POST" action="{{ url_for('views.user_admin_panel') }}" enctype="multipart/form-data">
+    <h2>Auction Information</h2>
+
+    <label for="title">Auction Title:</label>
+    <input type="text" id="title" name="title" required><br>
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" required></textarea><br>
+    <label for="start_time">Start Time:</label>
+    <input type="datetime-local" id="start_time" name="start_time" required><br>
+    <label for="end_time">End Time:</label>
+    <input type="datetime-local" id="end_time" name="end_time" required><br>
+    <label for="starting_bid">Starting Bid:</label>
+    <input type="number" step="0.01" id="starting_bid" name="starting_bid" required><br>
+
+    <!--<h2>Bid Information</h2>
+
+    <label for="amount">Bid Amount:</label>
+    <input type="number" step="0.01" id="amount" name="amount" placeholder="Bid Amount"><br>-->
+
+    <h2>Image Information</h2>
+
+    <label for="image">Upload Image:</label>
+    <input type="file" id="image" name="image" accept="image/*" multiple required>
+    <div id="image-preview">
+        <!-- Preview thumbnails will appear here -->
+    </div>
+    <button type="submit">Submit</button>
+
+</form>
+
+<div>
+    <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
+    <ul class="list">
+        {% for auction in user.auctions %}
+        <li>
+            {{ auction.title }}
+            {{ auction.description }}
+            {{ auction.created_at }}
+            {{ auction.start_time }}
+            {{ auction.end_time }}
+            {{ auction.starting_bid }}
+
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+<div>
+    <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Created At</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Starting Bid</th>
+                <th>Delete Auction</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for auction in user.auctions %}
+            
+            <tr id="auction-row-{{ auction.id }}">
+                <td>{{ auction.title }}</td>
+                <td>{{ auction.description }}</td>
+                <td>{{ auction.created_at }}</td>
+                <td>{{ auction.start_time }}</td>
+                <td>{{ auction.end_time }}</td>
+                <td>{{ auction.starting_bid }}</td>
+                <td> <button type="button" class="btn-close"
+                        onclick="deleteAuction({{ auction.id }})"></button>
+                </td>
+            </tr>
+            
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
