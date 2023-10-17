@@ -1,0 +1,2 @@
+placing of the bid needs a new route 
+and also display a message login to place a bid

@@ -20,23 +20,27 @@ def home_page():
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
     #last_bid = Bid.query.filter_by(user_id=current_user.id, auction_id=auction_id).order_by(desc(Bid.timestamp)).first()
     
-    # Create a subquery to find the maximum timestamp per auction
-    subquery = db.session.query(
-        Bid.auction_id,
-        func.max(Bid.timestamp).label('max_timestamp')
-    ).filter(Bid.user_id == current_user.id).group_by(Bid.auction_id).subquery()
-    print('subquery:', subquery)
-    
-    # Use the subquery to find the last bids
-    last_bids = db.session.query(Bid).join(
-        Auction, Auction.id == Bid.auction_id
-    ).join(
-        subquery,
-        and_(
-            Bid.auction_id == subquery.c.auction_id,
-            Bid.timestamp == subquery.c.max_timestamp
-        )
-    ).filter(Bid.user_id == current_user.id).all()
+    if not current_user.is_anonymous:
+        # Create a subquery to find the maximum timestamp per auction
+        subquery = db.session.query(
+            Bid.auction_id,
+            func.max(Bid.timestamp).label('max_timestamp')
+        ).filter(Bid.user_id == current_user.id).group_by(Bid.auction_id).subquery()
+        print('subquery:', subquery)
+        
+        # Use the subquery to find the last bids
+        last_bids = db.session.query(Bid).join(
+            Auction, Auction.id == Bid.auction_id
+        ).join(
+            subquery,
+            and_(
+                Bid.auction_id == subquery.c.auction_id,
+                Bid.timestamp == subquery.c.max_timestamp
+            )
+        ).filter(Bid.user_id == current_user.id).all()
+    else:
+        last_bids = []
+
     print('last_bids:', last_bids)
 
     has_last_bid = bool(last_bids)  # True if there are last_bids, False otherwise
