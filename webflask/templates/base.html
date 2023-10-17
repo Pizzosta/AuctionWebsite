@@ -147,7 +147,15 @@
                             <h6>Current Bid: &#8373; {{ bid.amount }}</h6>
                             {% endif %}
                             {% endfor %}
+                            
+                            {% if last_bid %}
+                                <h6>Current Bid: &#8373; {{ last_bid.amount }}</h6>
+                                <h6>Current Bid: &#8373; {{ last_bid }}</h6>
 
+                            {% else %}
+                                <p>No bids by the current user.</p>
+                            {% endif %}
+                            
                             <form method="POST" action="{{ url_for('views.user_admin_panel') }}">
                                 <input type="hidden" name="auction_id" value="{{ auction.id }}">
                                 <div class="input-group mb-3 mt-3">

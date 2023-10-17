@@ -57,6 +57,7 @@ class Bid(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.Float, nullable=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     # Define a many-to-one relationship with users (many bids can be placed by one user)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

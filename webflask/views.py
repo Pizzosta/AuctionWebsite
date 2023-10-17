@@ -6,17 +6,40 @@ from flask_login import login_required, current_user
 from flask_uploads import UploadSet, IMAGES
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import validates
-from webflask.models import User, Image, Auction, Bid
+from sqlalchemy import and_, func
+from webflask.models import Image, Auction, Bid
 from webflask import db
 
 views = Blueprint('views', __name__)
+
 
 
 @views.route('/', methods=['GET', 'POST'])
 def home_page():
     show_div = True  # Set the value of show_div
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
-    return render_template("base.html", show_div=show_div, user=current_user, all_auctions=all_auctions)
+    #last_bid = Bid.query.filter_by(user_id=current_user.id, auction_id=auction_id).order_by(desc(Bid.timestamp)).first()
+    
+    # Create a subquery to find the maximum timestamp per auction
+    subquery = db.session.query(
+        Bid.auction_id,
+        func.max(Bid.timestamp).label('max_timestamp')
+    ).filter(Bid.user_id == current_user.id).group_by(Bid.auction_id).subquery()
+    print('subquery:', subquery)
+    # Use the subquery to find the last bids
+    last_bids = db.session.query(Bid).join(
+        Auction, Auction.id == Bid.auction_id
+    ).join(
+        subquery,
+        and_(
+            Bid.auction_id == subquery.c.auction_id,
+            Bid.timestamp == subquery.c.max_timestamp
+        )
+    ).filter(Bid.user_id == current_user.id).all()
+    print('last_bids:', last_bids)
+
+
+    return render_template("base.html", last_bids=last_bids, show_div=show_div, user=current_user, all_auctions=all_auctions)
 
 
 @views.route('/account', methods=['POST', 'GET'])
