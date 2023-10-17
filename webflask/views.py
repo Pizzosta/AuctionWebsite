@@ -18,15 +18,16 @@ views = Blueprint('views', __name__)
 def home_page():
     show_div = True  # Set the value of show_div
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
-    #last_bid = Bid.query.filter_by(user_id=current_user.id, auction_id=auction_id).order_by(desc(Bid.timestamp)).first()
-    
+    last_bids = []  # Initialize last_bids as an empty list
+
+    has_last_bid = False  # Set has_last_bid to False by default
+
     if not current_user.is_anonymous:
         # Create a subquery to find the maximum timestamp per auction
         subquery = db.session.query(
             Bid.auction_id,
             func.max(Bid.timestamp).label('max_timestamp')
         ).filter(Bid.user_id == current_user.id).group_by(Bid.auction_id).subquery()
-        print('subquery:', subquery)
         
         # Use the subquery to find the last bids
         last_bids = db.session.query(Bid).join(
@@ -38,24 +39,35 @@ def home_page():
                 Bid.timestamp == subquery.c.max_timestamp
             )
         ).filter(Bid.user_id == current_user.id).all()
-    else:
-        last_bids = []
 
-    print('last_bids:', last_bids)
+        has_last_bid = bool(last_bids)  # Set has_last_bid based on whether there are last_bids
 
-    has_last_bid = bool(last_bids)  # True if there are last_bids, False otherwise
+    if request.method == 'POST':
+        # Process bid placement if a POST request is made
+        bid_amount = request.form.get('amount')
+        auction_id = request.form.get('auction_id')
+
+        if bid_amount and bid_amount.isdigit() and auction_id:
+            try:
+                bid_amount = float(bid_amount)
+            except ValueError:
+                flash('Bid amount must be a valid number.', category='danger')
+
+            auction = Auction.query.get(auction_id)
+
+            if auction:
+                if bid_amount >= auction.starting_bid:
+                    # Create a new Bid object associated with the auction
+                    bid = Bid(amount=bid_amount, user_id=current_user.id, auction_id=auction.id)
+                    db.session.add(bid)
+                    db.session.commit()
+                    flash('Bid placed successfully!', category='success')
+                else:
+                    flash('Bid amount must be equal to or greater than the starting bid.', category='danger')
+            else:
+                flash('Invalid auction ID provided.', category='danger')
 
     return render_template("base.html", last_bids=last_bids, has_last_bid=has_last_bid, show_div=show_div, user=current_user, all_auctions=all_auctions)
-
-
-@views.route('/account', methods=['POST', 'GET'])
-@login_required
-def account():
-    if current_user.is_admin:
-        return redirect(url_for('views.admin_panel'))
-    show_search = False
-    return render_template('user_admin.html', user=current_user, username=current_user.username, show_search=show_search)
-
 
 @views.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -180,7 +192,8 @@ def admin_panel():
             else:
                 flash('No active auction to place a bid!', category='danger')
         else:
-            flash('Invalid auction ID provided.', category='danger')
+            #flash('Invalid auction ID provided.', category='danger')
+            flash('Bid amount must be equal to or greater than the starting bid.', category='danger')
 
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
     all_bids = Bid.query.all()
@@ -312,7 +325,7 @@ def user_admin_panel():
             else:
                 flash('No active auction to place a bid!', category='danger')
         else:
-            flash('Invalid auction ID provided.', category='danger')
+            flash('Bid amount must be equal to or greater than the starting bid.', category='danger')
 
     user_bids = Bid.query.filter_by(user_id=current_user.id).all()
 
