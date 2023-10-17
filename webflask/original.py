@@ -311,6 +311,7 @@ def user_admin_panel():
             flash('Invalid auction ID provided.', category='danger')
 
     user_bids = Bid.query.filter_by(user_id=current_user.id).all()
+    print("user_bids:", user_bids)
 
     return render_template('user_admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, user_bids=user_bids)
 
