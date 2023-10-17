@@ -26,6 +26,7 @@ def home_page():
         func.max(Bid.timestamp).label('max_timestamp')
     ).filter(Bid.user_id == current_user.id).group_by(Bid.auction_id).subquery()
     print('subquery:', subquery)
+    
     # Use the subquery to find the last bids
     last_bids = db.session.query(Bid).join(
         Auction, Auction.id == Bid.auction_id
@@ -38,8 +39,9 @@ def home_page():
     ).filter(Bid.user_id == current_user.id).all()
     print('last_bids:', last_bids)
 
+    has_last_bid = bool(last_bids)  # True if there are last_bids, False otherwise
 
-    return render_template("base.html", last_bids=last_bids, show_div=show_div, user=current_user, all_auctions=all_auctions)
+    return render_template("base.html", last_bids=last_bids, has_last_bid=has_last_bid, show_div=show_div, user=current_user, all_auctions=all_auctions)
 
 
 @views.route('/account', methods=['POST', 'GET'])

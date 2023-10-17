@@ -121,7 +121,8 @@
             <h4 class="text-center"> LIVE AUCTIONS </h4>
             <ul class="list-unstyled">
                 {% for auction in all_auctions %}
-                {% if current_user.is_admin or auction.user != current_user %}  <!--Skip auctions created by the current user-->
+                {% if current_user.is_admin or auction.user != current_user %}
+                <!--Skip auctions created by the current user-->
                 <li class="p-3 m-2 border rounded">
                     <h4 class="text-center">ABOUT THIS AUCTION</h4>
                     <div class="container row">
@@ -142,20 +143,26 @@
                                 Time Left: <span id="countdown">00:05:00</span>
                             </div>
                             <h6>Starting Bid: &#8373; {{ auction.starting_bid }}</h6>
-                            {% for bid in auction.bids %}
-                            {% if bid.user_id == current_user.id %}
-                            <h6>Current Bid: &#8373; {{ bid.amount }}</h6>
-                            {% endif %}
-                            {% endfor %}
-                            
-                            {% if last_bid %}
-                                <h6>Current Bid: &#8373; {{ last_bid.amount }}</h6>
-                                <h6>Current Bid: &#8373; {{ last_bid }}</h6>
 
-                            {% else %}
-                                <p>No bids by the current user.</p>
+                            <h2>Last Bid</h2>
+                            {% for bid in last_bids %}
+                            {% if bid.auction_id == auction.id %}
+                            Auction ID: {{ bid.auction_id }}<br>
+                            Current Bid: &#8373; {{ bid.amount }}<br>
                             {% endif %}
-                            
+                            {% endfor %}<br>
+
+                            <!--make default of bid zero-->
+                            <h6>Current Bid: &#8373;
+                                {% for bid in last_bids %}
+                                {% if bid.auction_id == auction.id %}
+                                {{ bid.amount }}<br>
+                                {% endif %}
+                                {% endfor %}
+                            </h6>
+
+
+
                             <form method="POST" action="{{ url_for('views.user_admin_panel') }}">
                                 <input type="hidden" name="auction_id" value="{{ auction.id }}">
                                 <div class="input-group mb-3 mt-3">
@@ -165,7 +172,7 @@
                                 </div>
                                 <button class="btn btn-primary">Place Bid</button>
                             </form>
-                            
+
                         </div>
                     </div>
                     <div class="pb-3">
