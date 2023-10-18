@@ -160,8 +160,10 @@
                                 {% endif %}
                                 {% endfor %}
                             </h6>
+                            <h6>Current Bid: $<span id="current_bid">{{ current_bid }}</span></h6>
 
-                            <form method="POST" action="{{ url_for('views.home_page') }}">
+
+                            <form method="POST" onsubmit="placeBid(); return false;" action="{{ url_for('views.home_page') }}">
                                 <input type="hidden" name="auction_id" value="{{ auction.id }}">
                                 <div class="input-group mb-3 mt-3">
                                     <span class="input-group-text">Your Bid:</span>

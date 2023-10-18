@@ -61,6 +61,7 @@ def home_page():
                         db.session.add(bid)
                         db.session.commit()
                         flash('Bid placed successfully!', category='success')
+                        return redirect(url_for('views.home_page'))
                     else:
                         flash(
                             'Bid amount must be equal to or greater than the starting bid.', category='danger')
@@ -72,6 +73,7 @@ def home_page():
                 flash('Invalid bid data.', category='danger')
         else:
             flash('You need to be logged in to place a bid.', category='danger')
+            return redirect(url_for('auth.login'))
 
     return render_template("base.html", last_bids=last_bids, show_search=show_search, show_div=show_div, user=current_user, all_auctions=all_auctions)
 
