@@ -13,23 +13,23 @@ from webflask import db
 views = Blueprint('views', __name__)
 
 
-
 @views.route('/', methods=['GET', 'POST'])
 def home_page():
+    show_search = False
     show_div = True  # Set the value of show_div
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
     last_bids = []  # Initialize last_bids as an empty list
 
     has_last_bid = False  # Set has_last_bid to False by default
 
-    #if not current_user.is_anonymous:
+    # if not current_user.is_anonymous:
     if current_user.is_authenticated:
         # Create a subquery to find the maximum timestamp per auction
         subquery = db.session.query(
             Bid.auction_id,
             func.max(Bid.timestamp).label('max_timestamp')
         ).filter(Bid.user_id == current_user.id).group_by(Bid.auction_id).subquery()
-        
+
         # Use the subquery to find the last bids
         last_bids = db.session.query(Bid).join(
             Auction, Auction.id == Bid.auction_id
@@ -41,11 +41,9 @@ def home_page():
             )
         ).filter(Bid.user_id == current_user.id).all()
 
-    has_last_bid = bool(last_bids)  # Set has_last_bid based on whether there are last_bids
-
     if request.method == 'POST':
         if current_user.is_authenticated:  # Check if the user is logged in
-        # Process bid placement if a POST request is made
+            # Process bid placement if a POST request is made
             bid_amount = request.form.get('amount')
             auction_id = request.form.get('auction_id')
 
@@ -60,22 +58,24 @@ def home_page():
                 if auction:
                     if bid_amount >= auction.starting_bid:
                         # Create a new Bid object associated with the auction
-                        bid = Bid(amount=bid_amount, user_id=current_user.id, auction_id=auction.id)
+                        bid = Bid(amount=bid_amount,
+                                  user_id=current_user.id, auction_id=auction.id)
                         db.session.add(bid)
                         db.session.commit()
                         flash('Bid placed successfully!', category='success')
                     else:
-                        flash('Bid amount must be equal to or greater than the starting bid.', category='danger')
+                        flash(
+                            'Bid amount must be equal to or greater than the starting bid.', category='danger')
                 else:
-                    #flash('Invalid auction ID provided.', category='danger')
-                    flash('Bid amount must be equal to or greater than the starting bid.', category='danger')
+                    # flash('Invalid auction ID provided.', category='danger')
+                    flash(
+                        'Bid amount must be equal to or greater than the starting bid.', category='danger')
             else:
                 flash('Invalid bid data.', category='danger')
         else:
             flash('You need to be logged in to place a bid.', category='danger')
 
-
-    return render_template("base.html", last_bids=last_bids, has_last_bid=has_last_bid, show_div=show_div, user=current_user, all_auctions=all_auctions)
+    return render_template("base.html", last_bids=last_bids, show_search=show_search, show_div=show_div, user=current_user, all_auctions=all_auctions)
 
 
 @views.route('/account', methods=['POST', 'GET'])
@@ -83,8 +83,8 @@ def home_page():
 def account():
     if current_user.is_admin:
         return redirect(url_for('views.admin_panel'))
-    show_search = False
-    return render_template('user_admin.html', user=current_user, username=current_user.username, show_search=show_search)
+    else:
+        return redirect(url_for('views.user_admin_panel'))
 
 
 @views.route('/admin', methods=['GET', 'POST'])
@@ -210,12 +210,12 @@ def admin_panel():
             else:
                 flash('No active auction to place a bid!', category='danger')
         else:
-            #flash('Invalid auction ID provided.', category='danger')
-            flash('Bid amount must be equal to or greater than the starting bid.', category='danger')
+            # flash('Invalid auction ID provided.', category='danger')
+            flash(
+                'Bid amount must be equal to or greater than the starting bid.', category='danger')
 
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
     all_bids = Bid.query.all()
-
 
     return render_template('admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, all_auctions=all_auctions, all_bids=all_bids)
 
@@ -315,13 +315,6 @@ def user_admin_panel():
                         else:
                             flash(
                                 'No active auction to associate images with!', category='danger')
-                            
-        if bid_amount and bid_amount.isdigit() and auction_id:
-            # Ensure bid_amount is a valid number
-            try:
-                bid_amount = float(bid_amount)
-            except ValueError:
-                flash('Bid amount must be a valid number.', category='danger')
 
             # Retrieve the associated auction's starting bid
             auction = Auction.query.get(auction_id)
@@ -340,16 +333,11 @@ def user_admin_panel():
                 else:
                     flash(
                         'Bid amount must be equal to or greater than the starting bid.', category='danger')
-            else:
-                flash('No active auction to place a bid!', category='danger')
-        else:
-            flash('Bid amount must be equal to or greater than the starting bid.', category='danger')
 
     user_bids = Bid.query.filter_by(user_id=current_user.id).all()
-    print("user_bids:", user_bids)
+    user_auctions = Auction.query.filter_by(user_id=current_user.id).all()
 
-
-    return render_template('user_admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, user_bids=user_bids)
+    return render_template('user_admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, user_bids=user_bids, user_auctions=user_auctions)
 
 
 @views.route('/delete-auction/<int:id>', methods=['POST'])

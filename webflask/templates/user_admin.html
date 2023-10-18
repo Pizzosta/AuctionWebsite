@@ -47,7 +47,7 @@
 <div>
     <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
     <ul class="list">
-        {% for auction in user.auctions %}
+        {% for auction in user_auctions %}
         <li>
             {{ auction.title }}
             {{ auction.description }}
