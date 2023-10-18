@@ -20,8 +20,6 @@ def home_page():
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
     last_bids = []  # Initialize last_bids as an empty list
 
-    has_last_bid = False  # Set has_last_bid to False by default
-
     # if not current_user.is_anonymous:
     if current_user.is_authenticated:
         # Create a subquery to find the maximum timestamp per auction
