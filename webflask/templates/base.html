@@ -183,10 +183,21 @@
                             {% endfor %}
                         </ul>
                     </div>
+
+                    <h2>Top Bids for Auction {{ auction.id }}</h2>
+                    <ul>
+                        {% for user_id, auction_id, max_bid in top_bids %}
+                        {% if auction_id == auction.id %}
+                        <li>User {{ user_id }}: ${{ max_bid }}</li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
                 </li>
-                {% endif %}
-                {% endfor %}
+
             </ul>
+            {% endif %}
+            {% endfor %}
+
         </div>
 
         <div class="pb-3">

@@ -19,6 +19,9 @@ def home_page():
     show_div = True  # Set the value of show_div
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
     last_bids = []  # Initialize last_bids as an empty list
+    top_bids = []
+    # auction_id = None
+    # auction = None
 
     # if not current_user.is_anonymous:
     if current_user.is_authenticated:
@@ -39,6 +42,12 @@ def home_page():
             )
         ).filter(Bid.user_id == current_user.id).all()
 
+        top_bids = db.session.query(
+            Bid.user_id,
+            Bid.auction_id,
+            func.max(Bid.amount).label('max_bid')
+        ).group_by(Bid.user_id, Bid.auction_id).all()
+
     if request.method == 'POST':
         if current_user.is_authenticated:  # Check if the user is logged in
             # Process bid placement if a POST request is made
@@ -51,7 +60,8 @@ def home_page():
                 except ValueError:
                     flash('Bid amount must be a valid number.', category='danger')
 
-                auction = Auction.query.get(auction_id)
+                # auction = Auction.query.get(auction_id)
+                auction = Auction.query.filter_by(id=auction_id).first()
 
                 if auction:
                     if bid_amount >= auction.starting_bid:
@@ -75,7 +85,9 @@ def home_page():
             flash('You need to be logged in to place a bid.', category='danger')
             return redirect(url_for('auth.login'))
 
-    return render_template("base.html", last_bids=last_bids, show_search=show_search, show_div=show_div, user=current_user, all_auctions=all_auctions)
+    return render_template("base.html", top_bids=top_bids, last_bids=last_bids,
+                           show_search=show_search, show_div=show_div,
+                           user=current_user, all_auctions=all_auctions)
 
 
 @views.route('/account', methods=['POST', 'GET'])
