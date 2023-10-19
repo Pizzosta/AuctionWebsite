@@ -140,7 +140,7 @@
                             <h4 class="text-center border-bottom">BID INFORMATION</h4>
                             <h6>Auction ID: {{ auction.id }}</h6>
                             <div class="timer mb-3">
-                                Time Left: <span id="countdown">00:05:00</span>
+                                Time Left: <span class="countdown-{{ auction.id }}">00:05:00</span>
                             </div>
                             <h6>Starting Bid: &#8373; {{ auction.starting_bid }}</h6>
 
@@ -160,10 +160,8 @@
                                 {% endif %}
                                 {% endfor %}
                             </h6>
-                            <h6>Current Bid: $<span id="current_bid">{{ current_bid }}</span></h6>
 
-
-                            <form method="POST" onsubmit="placeBid(); return false;" action="{{ url_for('views.home_page') }}">
+                            <form method="POST" action="{{ url_for('views.home_page') }}">
                                 <input type="hidden" name="auction_id" value="{{ auction.id }}">
                                 <div class="input-group mb-3 mt-3">
                                     <span class="input-group-text">Your Bid:</span>
