@@ -6,8 +6,8 @@ from flask_login import login_required, current_user
 from flask_uploads import UploadSet, IMAGES
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import validates
-from sqlalchemy import and_, func
-from webflask.models import Image, Auction, Bid
+from sqlalchemy import and_, func, desc
+from webflask.models import User, Image, Auction, Bid
 from webflask import db
 
 views = Blueprint('views', __name__)
@@ -42,11 +42,32 @@ def home_page():
             )
         ).filter(Bid.user_id == current_user.id).all()
 
-        top_bids = db.session.query(
-            Bid.user_id,
-            Bid.auction_id,
+        # top_bids = db.session.query(Bid.user_id, Bid.auction_id, func.max(Bid.amount).label('max_bid')
+        # ).group_by(Bid.user_id, Bid.auction_id).all()
+
+        # Create a subquery to find the maximum bid amount per auction
+        subquery = db.session.query(
+            Bid.auction_id.label('auction_id'),
             func.max(Bid.amount).label('max_bid')
-        ).group_by(Bid.user_id, Bid.auction_id).all()
+        ).group_by(Bid.auction_id).subquery()
+
+        # Create another subquery to find the user who placed the maximum bid for each auction
+        max_bid_users_subquery = db.session.query(
+            Bid.auction_id.label('auction_id'),
+            User.username.label('max_bid_username'),
+            func.max(Bid.amount).label('max_bid')
+        ).join(User, Bid.user_id == User.id).group_by(Bid.auction_id, User.username).subquery()
+
+        # Join the subqueries to find the auction and the users who placed the maximum bids
+        top_bids = db.session.query(
+            Auction.id.label('auction_id'),
+            max_bid_users_subquery.c.max_bid_username.label('username'),
+            max_bid_users_subquery.c.max_bid.label('max_bid')
+        ).join(
+            max_bid_users_subquery,
+            Auction.id == max_bid_users_subquery.c.auction_id
+        ).order_by(desc(max_bid_users_subquery.c.max_bid)).limit(10).all()
+
 
     if request.method == 'POST':
         if current_user.is_authenticated:  # Check if the user is logged in

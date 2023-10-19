@@ -119,9 +119,10 @@
 
         <div>
             <h4 class="text-center"> LIVE AUCTIONS </h4>
+            {% for auction in all_auctions %}
+            {% if current_user.is_admin or auction.user != current_user %}
             <ul class="list-unstyled">
-                {% for auction in all_auctions %}
-                {% if current_user.is_admin or auction.user != current_user %}
+
                 <!--Skip auctions created by the current user-->
                 <li class="p-3 m-2 border rounded">
                     <h4 class="text-center">ABOUT THIS AUCTION</h4>
@@ -184,20 +185,20 @@
                         </ul>
                     </div>
 
-                    <h2>Top Bids for Auction {{ auction.id }}</h2>
-                    <ul>
-                        {% for user_id, auction_id, max_bid in top_bids %}
-                        {% if auction_id == auction.id %}
-                        <li>User {{ user_id }}: ${{ max_bid }}</li>
+                    <h5>Top Bids for Username {{ auction.id }}</h5>
+                    <ul class="list-group">
+                        {% for top_bid in top_bids %}
+                        {% if top_bid.auction_id == auction.id %}
+                        <li class="list-group-item">User: {{ top_bid.username }} - Maximum Bid: ${{ top_bid.max_bid }}</li>
                         {% endif %}
                         {% endfor %}
                     </ul>
+
                 </li>
 
             </ul>
             {% endif %}
             {% endfor %}
-
         </div>
 
         <div class="pb-3">
