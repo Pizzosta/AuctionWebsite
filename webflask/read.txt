@@ -1,2 +1,13 @@
-placing of the bid needs a new route 
-and also display a message login to place a bid
+auction = Auction.query.join(User).filter(User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()
+
+retrieve only valid auction
+auction = Auction.query.filter(Auction.deleted == False).order_by(Auction.created_at.desc())
+
+work on
+
+fix for the admin
+Bid amount must be equal to or greater than the starting bid.
+
+on validation float is 0.00 2 decimal places
+
+you have to outbid the last bidder to appear on the top list(test it more)

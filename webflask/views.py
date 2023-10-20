@@ -12,7 +12,22 @@ from webflask import db
 
 views = Blueprint('views', __name__)
 
+def mark_expired_auctions_as_deleted():
+    #from webflask.models import Auction, db  # Import your model and db instance
 
+    # Get all expired but not deleted auctions
+    expired_auctions = Auction.query.filter(
+        Auction.end_time < datetime.utcnow(),
+        Auction.deleted == False
+    ).all()
+
+    # Mark the auctions as deleted and commit the changes
+    for auction in expired_auctions:
+        auction.deleted = True
+
+    db.session.commit()
+    print('Scheduler task executed at:', datetime.now())
+    
 @views.route('/', methods=['GET', 'POST'])
 def home_page():
     show_search = False

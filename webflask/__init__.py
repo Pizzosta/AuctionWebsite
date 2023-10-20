@@ -1,12 +1,14 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_apscheduler import APScheduler
 from flask_login import LoginManager
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
 DB_NAME = "kawodze"
+scheduler = APScheduler()
 
 
 def create_app():
@@ -20,6 +22,21 @@ def create_app():
         os.path.abspath(os.path.dirname(__file__)), 'static/images/uploads')
     # Set up the upload directory and allowed extensions
     app.config['UPLOADED_IMAGES_ALLOW'] = IMAGES
+
+     # Set up the scheduler to check expired auctions
+    app.config['SCHEDULER_API_ENABLED'] = True
+    scheduler.init_app(app)
+    scheduler.start()
+
+    from webflask.views import mark_expired_auctions_as_deleted #imported here to prevent circular import
+
+    # Schedule the task to run every hour 
+    scheduler.add_job(
+        id='mark_expired_auctions_job',
+        func=mark_expired_auctions_as_deleted,
+        trigger='interval',
+        hours=1
+    )
 
     # Create the 'uploads' directory if it doesn't exist
     uploads_directory = app.config['UPLOADED_IMAGES_DEST']
