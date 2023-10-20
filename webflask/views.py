@@ -68,25 +68,18 @@ def home_page():
             Auction.id == max_bid_users_subquery.c.auction_id
         ).order_by(desc(max_bid_users_subquery.c.max_bid)).limit(10).all()
 
-
     if request.method == 'POST':
         if current_user.is_authenticated:  # Check if the user is logged in
             # Process bid placement if a POST request is made
             bid_amount = request.form.get('amount')
             auction_id = request.form.get('auction_id')
 
-            if bid_amount and bid_amount.isdigit() and auction_id:
+            if bid_amount:
                 try:
                     bid_amount = float(bid_amount)
-                except ValueError:
-                    flash('Bid amount must be a valid number.', category='danger')
+                    auction = Auction.query.get(auction_id)
 
-                # auction = Auction.query.get(auction_id)
-                auction = Auction.query.filter_by(id=auction_id).first()
-
-                if auction:
-                    if bid_amount >= auction.starting_bid:
-                        # Create a new Bid object associated with the auction
+                    if auction and bid_amount >= auction.starting_bid:
                         bid = Bid(amount=bid_amount,
                                   user_id=current_user.id, auction_id=auction.id)
                         db.session.add(bid)
@@ -96,12 +89,10 @@ def home_page():
                     else:
                         flash(
                             'Bid amount must be equal to or greater than the starting bid.', category='danger')
-                else:
-                    # flash('Invalid auction ID provided.', category='danger')
-                    flash(
-                        'Bid amount must be equal to or greater than the starting bid.', category='danger')
+                except ValueError:
+                    flash('Bid amount must be a valid number.', category='danger')
             else:
-                flash('Invalid bid data.', category='danger')
+                flash('Bid amount is required.', category='danger')
         else:
             flash('You need to be logged in to place a bid.', category='danger')
             return redirect(url_for('auth.login'))
