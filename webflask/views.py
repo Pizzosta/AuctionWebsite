@@ -1,7 +1,8 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import os
 from datetime import datetime
-from flask import Blueprint, render_template, request, flash, current_app, redirect, url_for
+from flask import (Blueprint, render_template, request,
+                   flash, current_app, redirect, url_for)
 from flask_login import login_required, current_user
 from flask_uploads import UploadSet, IMAGES
 from werkzeug.utils import secure_filename
@@ -12,9 +13,8 @@ from webflask import db
 
 views = Blueprint('views', __name__)
 
-def mark_expired_auctions_as_deleted():
-    #from webflask.models import Auction, db  # Import your model and db instance
 
+def mark_expired_auctions_as_deleted():
     # Get all expired but not deleted auctions
     expired_auctions = Auction.query.filter(
         Auction.end_time < datetime.utcnow(),
@@ -27,7 +27,8 @@ def mark_expired_auctions_as_deleted():
 
     db.session.commit()
     print('Scheduler task executed at:', datetime.now())
-    
+
+
 @views.route('/', methods=['GET', 'POST'])
 def home_page():
     show_search = False
@@ -44,7 +45,8 @@ def home_page():
         subquery = db.session.query(
             Bid.auction_id,
             func.max(Bid.timestamp).label('max_timestamp')
-        ).filter(Bid.user_id == current_user.id).group_by(Bid.auction_id).subquery()
+        ).filter(Bid.user_id == current_user.id
+                 ).group_by(Bid.auction_id).subquery()
 
         # Use the subquery to find the last bids
         last_bids = db.session.query(Bid).join(
@@ -256,7 +258,9 @@ def admin_panel():
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
     all_bids = Bid.query.all()
 
-    return render_template('admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, all_auctions=all_auctions, all_bids=all_bids)
+    return render_template('admin.html', user=current_user, username=current_user.username,
+                           uploaded_images=uploaded_images, all_auctions=all_auctions,
+                           all_bids=all_bids)
 
 
 @views.route('/user-admin', methods=['GET', 'POST'])
@@ -376,7 +380,9 @@ def user_admin_panel():
     user_bids = Bid.query.filter_by(user_id=current_user.id).all()
     user_auctions = Auction.query.filter_by(user_id=current_user.id).all()
 
-    return render_template('user_admin.html', user=current_user, username=current_user.username, uploaded_images=uploaded_images, user_bids=user_bids, user_auctions=user_auctions)
+    return render_template('user_admin.html', user=current_user, username=current_user.username,
+                           uploaded_images=uploaded_images, user_bids=user_bids,
+                           user_auctions=user_auctions)
 
 
 @views.route('/delete-auction/<int:id>', methods=['POST'])
