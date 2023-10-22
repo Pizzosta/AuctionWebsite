@@ -29,6 +29,15 @@ This repository constains the following files:
 |   **File**   |   **Description**   |
 | -------------- | --------------------- |
 |[AUTHORS](./AUTHORS) | Contains info about authors of the project |
+|[LICENSE](./LICENSE) | Contains info about license with regrads to use of the project |
+|[README.md](./README.md)| This file, you are currently reading! |
+|[requirements.txt](./requirements.txt) | List of python packages needed for this project |
+|[app.py](./app.py) | The main Flask app that runs on localhost:5000 |
+|[setupDB.sql](./setupDB.sql) | Configuration settings for database setup |
+|[tests](./tests/) | Directory containing test scripts |
+|[webflask](./webflask/) | Files related to kawodze |
+|[templates](./webflask/templates/) | HTML templates directory |
+|[static](./webflask/static/) | Static assets like CSS, JS, images etc. |
 
 
 ## Installation 🛠️
