@@ -15,7 +15,7 @@
 
 ## Description 📄
 Kawodze is a web application aimed at providing comprehensive
-online market presence for traditional artists
+online market presence for traditional artists. The main objective is to create an auction for their most priced crafts where users engage in a bidding war to determine its worth.
 
 ## Environment 💻
 The console was developed on Ubuntu 20.04 LTS using python3 (version 3.8.5) and adheres to pep8 style documentaion.
@@ -45,7 +45,7 @@ This repository constains the following files:
 * Back-end Development: Python 3, Flask, MySQL DB
 
 ## Version 📌
-ProjectArtimus - version 0.1
+Kawodze - version 0.1
 
 ## License 🌐
 Public Domain. No copy write protection.
@@ -54,4 +54,4 @@ Public Domain. No copy write protection.
 To all the peers of ALX Software Engineers cohort10 that contribuited with their knowledge
 
 ## Contact 📬
-If you have any questions or suggestions regarding Project Artimus, please feel free to send an email
+If you have any questions or suggestions regarding Kawodze, please feel free to send an email
