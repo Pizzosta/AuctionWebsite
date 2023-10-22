@@ -67,7 +67,7 @@ def sign_up():
 
         if len(email) < 4:
             error_messages.append('Email must be greater than 4 characters.')
-        if len(telephone) < 10:
+        if len(telephone) != 10:
             error_messages.append('Telephone must be 10 digits long.')
         if len(firstname) < 2:
             error_messages.append(
