@@ -51,16 +51,24 @@ def sign_up():
         lastname = request.form.get('lastname')
         username = request.form.get('username')
         email = request.form.get('email')
+        telephone = request.form.get('telephone')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
 
         error_messages = []
 
-        user = User.query.filter_by(email=email).first()
-        if user:
+        user_by_email = User.query.filter_by(email=email).first()
+        if user_by_email:
             error_messages.append('Email already exists')
+
+        user_by_telephone = User.query.filter_by(telephone=telephone).first()
+        if user_by_telephone:
+            error_messages.append('Phone number already exists')
+
         if len(email) < 4:
             error_messages.append('Email must be greater than 4 characters.')
+        if len(telephone) < 10:
+            error_messages.append('Telephone must be 10 digits long.')
         if len(firstname) < 2:
             error_messages.append(
                 'Firstname must be greater than 1 character.')
@@ -88,6 +96,7 @@ def sign_up():
         if not error_messages:
             new_user = User(firstname=firstname, lastname=lastname,
                             username=username, email=email,
+                            telephone=telephone,
                             password=generate_password_hash(
                                 password, method='scrypt'))
 

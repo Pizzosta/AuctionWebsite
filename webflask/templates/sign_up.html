@@ -25,6 +25,11 @@
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <div class="mb-3">
+                <label for="telephone">Telephone:</label>
+                <input type="tel" class="form-control" id="telephone" name="telephone" pattern="[0-9]{10}"
+                    placeholder="Please enter a 10-digit phone number" required>
+            </div>
+            <div class="mb-3">
                 <label for="password">Password:</label>
                 <input type="password" class="form-control" id="password" name="password" required>
                 <small><strong>Should contain at least one Uppercase, Lowercase, Special character & number
@@ -40,7 +45,7 @@
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
             <br><small>By clicking on "I agree" and "Submit" button, you are creating an account, and agree to
-                Project-Artimus' <strong>Terms of Service</strong> and <strong>Privacy Policy</strong></small>
+                KAWODZE's <strong>Terms of Service</strong> and <strong>Privacy Policy</strong></small>
         </form>
     </div>
 </div>{% endblock %}

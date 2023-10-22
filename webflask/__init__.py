@@ -74,6 +74,7 @@ def create_app():
                 lastname='Ampah',
                 username='Admin',
                 email='admin@example.com',
+                telephone='0123456789',
                 password=generate_password_hash(
                     '1Admin_pass', method='scrypt'),
                 is_admin=True
@@ -90,6 +91,7 @@ def create_app():
                 lastname='PZ',
                 username='PZ',
                 email='1Pz@g.com',
+                telephone='0123456788',
                 password=generate_password_hash(
                     '1Pz@g.com', method='scrypt'),
                 is_admin=False
@@ -108,6 +110,7 @@ def create_app():
                 lastname='Doe',
                 username='NonAdminUser',
                 email='1John.doe@example.com',
+                telephone='0123456787',
                 password=generate_password_hash(
                     '1John.doe@example.com', method='scrypt'),
                 is_admin=False
@@ -126,6 +129,7 @@ def create_app():
                 lastname='Johnson',
                 username='User3',
                 email='1Alice.johnson@example.com',
+                telephone='0123456786',
                 password=generate_password_hash(
                     '1Alice.johnson@example.com', method='scrypt'),
                 is_admin=False
@@ -144,6 +148,7 @@ def create_app():
                 lastname='Smith',
                 username='User4',
                 email='1Bob.smith@example.com',
+                telephone='0123456785',
                 password=generate_password_hash(
                     '1Bob.smith@example.com', method='scrypt'),
                 is_admin=False

@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     lastname = db.Column(db.String(100), nullable=False)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    telephone = db.Column(db.String(10), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
@@ -23,6 +24,7 @@ class User(db.Model, UserMixin):
     # Define a one-to-many relationship with bids (one user can place multiple bids)
     bids = db.relationship('Bid', backref='user', lazy=True)
 
+    # Define a one-to-many relationship with bids (one user can be associated with multiple images)
     images = db.relationship('Image', backref='user', lazy=True)
 
     @validates('firstname', 'lastname', 'username', 'email')
