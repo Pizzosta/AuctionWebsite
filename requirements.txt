@@ -113,7 +113,7 @@ python-dateutil==2.8.2
 python-debian===0.1.36ubuntu1
 python-nmap==0.7.1
 pytz==2023.3
-PyYAML==5.3.1
+PyYAML==5.4
 requests==2.22.0
 requests-oauthlib==1.3.1
 requests-toolbelt==0.8.0
