@@ -74,9 +74,10 @@ def create_app():
                 lastname='Ampah',
                 username='Admin',
                 email='admin@example.com',
-                telephone='0123456789',
+                telephone='0243456789',
                 password=generate_password_hash(
                     '1Admin_pass', method='scrypt'),
+                agree=True,
                 is_admin=True
             )
             db.session.add(admin_user)
@@ -91,9 +92,10 @@ def create_app():
                 lastname='PZ',
                 username='PZ',
                 email='1Pz@g.com',
-                telephone='0123456788',
+                telephone='+233243456788',
                 password=generate_password_hash(
                     '1Pz@g.com', method='scrypt'),
+                agree=True,
                 is_admin=False
             )
             db.session.add(first_user)
@@ -110,9 +112,10 @@ def create_app():
                 lastname='Doe',
                 username='NonAdminUser',
                 email='1John.doe@example.com',
-                telephone='0123456787',
+                telephone='+233243456787',
                 password=generate_password_hash(
                     '1John.doe@example.com', method='scrypt'),
+                agree=True,
                 is_admin=False
             )
             db.session.add(second_user)
@@ -129,9 +132,10 @@ def create_app():
                 lastname='Johnson',
                 username='User3',
                 email='1Alice.johnson@example.com',
-                telephone='0123456786',
+                telephone='+233243456786',
                 password=generate_password_hash(
                     '1Alice.johnson@example.com', method='scrypt'),
+                agree=True,
                 is_admin=False
             )
             db.session.add(third_user)
@@ -148,9 +152,10 @@ def create_app():
                 lastname='Smith',
                 username='User4',
                 email='1Bob.smith@example.com',
-                telephone='0123456785',
+                telephone='+233243456785',
                 password=generate_password_hash(
                     '1Bob.smith@example.com', method='scrypt'),
+                agree=True,
                 is_admin=False
             )
             db.session.add(forth_user)

@@ -3,6 +3,8 @@ import re
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
+from phonenumbers import geocoder
+import phonenumbers
 from webflask.models import User
 from webflask import db
 
@@ -54,6 +56,7 @@ def sign_up():
         telephone = request.form.get('telephone')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
+        agree = request.form.get('agree') == 'true'
 
         error_messages = []
 
@@ -65,10 +68,18 @@ def sign_up():
         if user_by_telephone:
             error_messages.append('Phone number already exists')
 
-        if len(email) < 4:
-            error_messages.append('Email must be greater than 4 characters.')
         if len(telephone) != 10:
             error_messages.append('Telephone must be 10 digits long.')
+        else:
+            # Remove the first character (assuming it's the leading '0') and add the default Ghanaian country code, "+233"
+            telephone = "+233" + telephone[1:]
+            parsed_number = phonenumbers.parse(telephone)
+            if not phonenumbers.is_valid_number(parsed_number) or \
+                    geocoder.country_name_for_number(parsed_number, "en") != "Ghana":
+                error_messages.append('Invalid Ghanaian phone number.')
+
+        if len(email) < 4:
+            error_messages.append('Email must be greater than 4 characters.')
         if len(firstname) < 2:
             error_messages.append(
                 'Firstname must be greater than 1 character.')
@@ -92,13 +103,15 @@ def sign_up():
         if not re.search(r'[!@#$%^&*()_+]', password):
             error_messages.append(
                 'Password should contain at least one special character.')
+        if agree == False:
+            error_messages.append('You need to accept the terms and conditions.')
 
         if not error_messages:
             new_user = User(firstname=firstname, lastname=lastname,
                             username=username, email=email,
                             telephone=telephone,
                             password=generate_password_hash(
-                                password, method='scrypt'))
+                                password, method='scrypt'), agree=agree)
 
             db.session.add(new_user)
             db.session.commit()

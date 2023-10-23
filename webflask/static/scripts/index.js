@@ -96,17 +96,21 @@ function deleteAuction(auctionId) {
           row.parentNode.removeChild(row);
         }
         // Display success flash message (you can adjust this part to fit your HTML structure)
-        document.getElementById('flash-message').innerHTML = '<div class="alert alert-success">Auction deleted successfully!</div>';
+        document.getElementById('flash-message').innerHTML = '<div class="alert alert-success">Auction deleted successfully! \
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
       } else if (response.status === 401) {
         // Unauthorized, show an error message (optional)
-        document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">Unauthorized to delete this auction.</div>';
+        document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">Unauthorized to delete this auction. \
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
       } else {
         // Other error, show an error message (optional)
-        document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">An error occurred while deleting the auction.</div>';      }
+        document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">An error occurred while deleting the auction. \
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';      }
     })
     .catch(error => {
       // Fetch error, show an error message (optional)
-      document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">Error occurred while deleting the auction.</div>';    })
+      document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">Error occurred while deleting the auction. \
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';    })
 }
 
 //Check password client side validation
@@ -115,7 +119,8 @@ function checkPasswordsMatch() {
   const confirm_password = document.getElementById("confirm_password").value;
 
   if (password !== confirm_password) {
-    document.getElementById("flash-message").style.display = "block";
+    document.getElementById("flash-message").innerHTML = '<div class="alert alert-danger alert-dismissible fade show">Passwords dont match. \
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
     return false;
   } else {
     document.getElementById("flash-message").style.display = "none";
