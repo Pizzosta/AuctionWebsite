@@ -27,20 +27,21 @@ def create_app():
     app.config['UPLOADED_IMAGES_ALLOW'] = IMAGES
 
     # Set up the scheduler to check expired auctions
-    app.config['SCHEDULER_API_ENABLED'] = True
-    scheduler.init_app(app)
-    scheduler.start()
+    #app.config['SCHEDULER_API_ENABLED'] = True
+    #scheduler.init_app(app)
+    #scheduler.start()
 
     # imported here to prevent circular import
     from webflask.views import mark_expired_auctions_as_deleted
 
-    # Schedule the task to run every hour
-    scheduler.add_job(
-        id='mark_expired_auctions_job',
-        func=mark_expired_auctions_as_deleted,
-        trigger='interval',
-        hours=1
-    )
+    # Schedule the task to run every minute
+    if not scheduler.get_job('mark_expired_auctions_job'):
+        scheduler.add_job(
+            id='mark_expired_auctions_job',
+            func=mark_expired_auctions_as_deleted,
+            trigger='interval',
+            minutes=1
+        )
 
     # Create the 'uploads' directory if it doesn't exist
     uploads_directory = app.config['UPLOADED_IMAGES_DEST']

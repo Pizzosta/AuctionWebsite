@@ -9,24 +9,30 @@ from werkzeug.utils import secure_filename
 from sqlalchemy.orm import validates
 from sqlalchemy import and_, func, desc
 from webflask.models import User, Image, Auction, Bid
-from webflask import db
+from webflask import db, create_app
 
 views = Blueprint('views', __name__)
 
 
 def mark_expired_auctions_as_deleted():
-    # Get all expired but not deleted auctions
-    expired_auctions = Auction.query.filter(
-        Auction.end_time < datetime.utcnow(),
-        Auction.deleted == False
-    ).all()
+    # Create an app context
+    app = create_app()
+    app.app_context().push()
 
-    # Mark the auctions as deleted and commit the changes
-    for auction in expired_auctions:
-        auction.deleted = True
+    # Now you can safely interact with the database and application context
+    with app.app_context():
+        # Get all expired but not deleted auctions
+        expired_auctions = Auction.query.filter(
+            Auction.end_time < datetime.utcnow(),
+            Auction.deleted == False
+        ).all()
 
-    db.session.commit()
-    print('Scheduler task executed at:', datetime.now())
+        # Mark the auctions as deleted and commit the changes
+        for auction in expired_auctions:
+            auction.deleted = True
+
+        db.session.commit()
+        print('Scheduler task executed at:', datetime.now())
 
 
 @views.route('/', methods=['GET', 'POST'])
