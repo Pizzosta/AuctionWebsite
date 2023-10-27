@@ -42,37 +42,15 @@ def home_page():
     all_auctions = Auction.query.all()  # Fetch all auctions from all users
     last_bids = []  # Initialize last_bids as an empty list
     top_bids = []
-    # auction_id = None
-    # auction = None
+
 
     # if not current_user.is_anonymous:
     if current_user.is_authenticated:
-        # Create a subquery to find the maximum timestamp per auction
-        subquery = db.session.query(
-            Bid.auction_id,
-            func.max(Bid.timestamp).label('max_timestamp')
-        ).filter(Bid.user_id == current_user.id
-                 ).group_by(Bid.auction_id).subquery()
-
-        # Use the subquery to find the last bids
-        last_bids = db.session.query(Bid).join(
-            Auction, Auction.id == Bid.auction_id
-        ).join(
-            subquery,
-            and_(
-                Bid.auction_id == subquery.c.auction_id,
-                Bid.timestamp == subquery.c.max_timestamp
-            )
-        ).filter(Bid.user_id == current_user.id).all()
-
-        # top_bids = db.session.query(Bid.user_id, Bid.auction_id, func.max(Bid.amount).label('max_bid')
-        # ).group_by(Bid.user_id, Bid.auction_id).all()
-
         # Create a subquery to find the maximum bid amount per auction
-        subquery = db.session.query(
-            Bid.auction_id.label('auction_id'),
-            func.max(Bid.amount).label('max_bid')
-        ).group_by(Bid.auction_id).subquery()
+        #subquery = db.session.query(
+            #Bid.auction_id.label('auction_id'),
+            #func.max(Bid.amount).label('max_bid')
+        #).group_by(Bid.auction_id).subquery()
 
         # Create another subquery to find the user who placed the maximum bid for each auction
         max_bid_users_subquery = db.session.query(
@@ -285,12 +263,7 @@ def user_admin_panel():
         end_time = request.form.get('end_time')
         starting_bid = request.form.get('starting_bid')
 
-        bid_amount = request.form.get('amount')
-
         image = request.files.getlist('image')
-
-        # retrieve auction.id in the base.html for bids
-        auction_id = request.form.get('auction_id')
 
         if title and description and start_time and end_time and starting_bid:
             if len(title) > 1 and len(description) > 1:
@@ -365,23 +338,6 @@ def user_admin_panel():
                             flash(
                                 'No active auction to associate images with!', category='danger')
 
-            # Retrieve the associated auction's starting bid
-            auction = Auction.query.get(auction_id)
-
-            print("Retrieved auction_id:", auction_id)
-
-            if auction:
-                if bid_amount >= auction.starting_bid:
-                    # if bid_amount is not None and starting_bid is not None and bid_amount >= starting_bid:
-                    # Create a new Bid object associated with the auction
-                    bid = Bid(amount=bid_amount, user_id=current_user.id,
-                              auction_id=auction.id)
-                    db.session.add(bid)
-                    db.session.commit()
-                    flash('Bid placed successfully!', category='success')
-                else:
-                    flash(
-                        'Bid amount must be equal to or greater than the starting bid.', category='danger')
 
     user_bids = Bid.query.filter_by(user_id=current_user.id).all()
     user_auctions = Auction.query.filter_by(user_id=current_user.id).all()

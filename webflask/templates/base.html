@@ -111,7 +111,7 @@
     </div>
 
     <div class="container rounded shadow">
-        <div class="mt-2">
+        <div class="p-2 m-2">
             <h4 class="text-center">AUCTION RULES</h4>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tincidunt velit a odio tincidunt, non
                 vulputate sapien luctus.</p>
@@ -121,7 +121,7 @@
             <h4 class="text-center"> LIVE AUCTIONS </h4>
             {% for auction in all_auctions %}
             {% if current_user.is_admin or auction.user != current_user %}
-            <ul class="list-unstyled">
+            <ul class="list-unstyled pb-2">
 
                 <!--Skip auctions created by the current user-->
                 <li class="p-3 m-2 border rounded">
@@ -145,22 +145,12 @@
                             </div>
                             <h6>Starting Bid: &#8373; {{ auction.starting_bid }}</h6>
 
-                            <h2>Last Bid</h2>
                             {% for bid in last_bids %}
                             {% if bid.auction_id == auction.id %}
                             Auction ID: {{ bid.auction_id }}<br>
                             Current Bid: &#8373; {{ bid.amount }}<br>
                             {% endif %}
                             {% endfor %}<br>
-
-                            <!--make default of bid zero-->
-                            <h6>Current Bid: &#8373;
-                                {% for bid in last_bids %}
-                                {% if bid.auction_id == auction.id %}
-                                {{ bid.amount }}<br>
-                                {% endif %}
-                                {% endfor %}
-                            </h6>
 
                             <form method="POST" action="{{ url_for('views.home_page') }}">
                                 <input type="hidden" name="auction_id" value="{{ auction.id }}">
@@ -174,22 +164,13 @@
 
                         </div>
                     </div>
-                    <div class="pb-3">
-                        <h2>Top Bids</h2>
-                        <ul class="list-group">
-                            {% for bid in auction.bids %}
-                            <li class="list-group-item">
-                                User: {{ bid.user.username }} - Amount: &#8373; {{ bid.amount }}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-
-                    <h5>Top Bids for Username {{ auction.id }}</h5>
+                    
+                    <h5>Top Bids by each User </h5>
                     <ul class="list-group">
                         {% for top_bid in top_bids %}
                         {% if top_bid.auction_id == auction.id %}
-                        <li class="list-group-item">User: {{ top_bid.username }} - Maximum Bid: ${{ top_bid.max_bid }}</li>
+                        <li class="list-group-item">User: {{ top_bid.username }} - Maximum Bid: &#8373; {{
+                            top_bid.max_bid }}</li>
                         {% endif %}
                         {% endfor %}
                     </ul>
@@ -201,16 +182,6 @@
             {% endfor %}
         </div>
 
-        <div class="pb-3">
-            <h2>Top Bids</h2>
-            <ul class="list-group">
-                <li class="list-group-item">Bidder 1 - &#8373; 600</li>
-                <li class="list-group-item">Bidder 2 - &#8373; 550</li>
-                <li class="list-group-item">Bidder 3 - &#8373; 520</li>
-                <li class="list-group-item">Bidder 4 - &#8373; 510</li>
-                <li class="list-group-item">Bidder 5 - &#8373; 500</li>
-            </ul>
-        </div>
     </div>
     {% endif %}
 
