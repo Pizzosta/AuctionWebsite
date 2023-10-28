@@ -31,6 +31,11 @@ def create_app():
     # Set up the upload directory and allowed extensions
     app.config['UPLOADED_IMAGES_ALLOW'] = IMAGES
 
+    from webflask.views import datetime_local_format, current_datetime
+    # Make the filter available to your Jinja2 environment
+    app.jinja_env.filters['datetime_local_format'] = datetime_local_format
+    app.jinja_env.globals['current_datetime'] = current_datetime
+
     # Set up the scheduler to check expired auctions
     if not scheduler.running:
         app.config['SCHEDULER_API_ENABLED'] = True

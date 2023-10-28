@@ -7,11 +7,24 @@ from flask_login import login_required, current_user
 from flask_uploads import UploadSet, IMAGES
 from werkzeug.utils import secure_filename
 from sqlalchemy.orm import validates
-from sqlalchemy import and_, func, desc
+from sqlalchemy import func, desc
 from webflask.models import User, Image, Auction, Bid
 from webflask import db, create_app
 
 views = Blueprint('views', __name__)
+
+
+# Define a function to get the current datetime
+def current_datetime():
+    return datetime.now()
+
+
+# Define a Jinja2 filter function to format datetime for datetime-local input
+def datetime_local_format(value):
+    if value is not None and isinstance(value, datetime):
+        # Format the datetime as 'YYYY-MM-DDTHH:MM'
+        return value.strftime('%Y-%m-%dT%H:%M')
+    return value
 
 
 def mark_expired_auctions_as_deleted():
@@ -246,7 +259,7 @@ def admin_panel():
 
     all_auctions = Auction.query.paginate(
         page=page, per_page=per_page, error_out=False)  # Fetch all auctions from all users
-    
+
     all_bids = Bid.query.all()
 
     for auction in all_auctions.items:
@@ -254,9 +267,11 @@ def admin_panel():
         auction_id = auction.id
 
         # Query the highest bid for the given auction_id
-        highest_bid = db.session.query(func.max(Bid.amount)).filter_by(auction_id=auction_id).scalar()
+        highest_bid = db.session.query(func.max(Bid.amount)).filter_by(
+            auction_id=auction_id).scalar()
         highest_bids[auction.id] = highest_bid
-    
+
+
     return render_template('admin.html', user=current_user, username=current_user.username,
                            uploaded_images=uploaded_images, all_auctions=all_auctions,
                            all_bids=all_bids, highest_bids=highest_bids)
@@ -270,7 +285,7 @@ def user_admin_panel():
         'images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
 
     auction = None  # Initialize the 'auction' variable
-    highest_bids = {} # Create a dictionary to store highest bids
+    highest_bids = {}  # Create a dictionary to store highest bids
 
     if request.method == 'POST':
         title = request.form.get('title')
@@ -368,7 +383,8 @@ def user_admin_panel():
         auction_id = auction.id
 
         # Query the highest bid for the given auction_id
-        highest_bid = db.session.query(func.max(Bid.amount)).filter_by(auction_id=auction_id).scalar()
+        highest_bid = db.session.query(func.max(Bid.amount)).filter_by(
+            auction_id=auction_id).scalar()
         highest_bids[auction.id] = highest_bid
 
     return render_template('user_admin.html', user=current_user, username=current_user.username,
@@ -382,21 +398,26 @@ def delete_auction(id):
     auction = Auction.query.get(id)
     # auction = Auction.query.join(User).filter(User.is_admin == True, Auction.deleted == False).order_by(Auction.created_at.desc()).first()
 
-    # Check if the auction exists and belongs to the current user & super delete for admin
-    if current_user.is_admin or (auction and auction.user_id == current_user.id):
-        # Get the associated images for this auction
-        images = Image.query.filter_by(auction_id=id).all()
+    if auction:
+        # Check if the auction exists and belongs to the current user & super delete for admin
+        if current_user.is_admin or auction.user_id == current_user.id:
+            # Get the associated images for this auction
+            images = Image.query.filter_by(auction_id=id).all()
 
-        # Delete the associated images from both the file system and the database
-        for image in images:
-            # Build the full path to the image file
-            image_path = os.path.join(
-                current_app.config['UPLOADED_IMAGES_DEST'], image.filename)
-            if os.path.exists(image_path):
-                os.remove(image_path)  # Delete the image file
+            # Delete the associated images from both the file system and the database
+            for image in images:
+                # Build the full path to the image file
+                image_path = os.path.join(
+                    current_app.config['UPLOADED_IMAGES_DEST'], image.filename)
+                if os.path.exists(image_path):
+                    os.remove(image_path)  # Delete the image file
 
-        db.session.delete(auction)
-        db.session.commit()
-        return '', 204  # Return 'No Content' status for successful deletion
+            db.session.delete(auction)
+            db.session.commit()
+            # flash('Auction deleted successfully!', category='success')
+            # return redirect(url_for('views.account'))
+            return '', 204  # Return 'No Content' status for successful deletion
+        else:
+            return '', 401  # Return 'Unauthorized' status
     else:
-        return 'Unauthorized', 401  # Return 'Unauthorized' status
+        return '', 404  # Return 'Not Found' status if the auction doesn't exist

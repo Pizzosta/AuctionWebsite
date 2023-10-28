@@ -62,11 +62,13 @@
     <div class="form-row">
         <div class="form-group col-md-4">
             <label for="start_time">Start Time:</label>
-            <input type="datetime-local" id="start_time" name="start_time" class="form-control" required>
+            <input type="datetime-local" id="start_time" name="start_time" class="form-control"
+                min="{{ current_datetime() | datetime_local_format }}" required>
         </div>
         <div class="form-group col-md-4">
             <label for="end_time">End Time:</label>
-            <input type="datetime-local" id="end_time" name="end_time" class="form-control" required>
+            <input type="datetime-local" id="end_time" name="end_time" class="form-control"
+                min="{{ current_datetime() | datetime_local_format }}" required>
         </div>
     </div>
 
@@ -148,7 +150,7 @@
                 <td> <button type="button" class="btn btn-danger"
                         onclick="deleteAuction({{ auction.id }})">Delete</button>
                 </td>
-                <td><a href="/delete-auction/{{ auction.id }}" class="btn btn-danger">Delete</a></td>
+                <!--<td><a href="/delete-auction/{{ auction.id }}" class="btn btn-danger">Delete</a></td>-->
             </tr>
 
             {% endfor %}
