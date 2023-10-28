@@ -50,7 +50,7 @@ This repository constains the following files:
 
 
 ## Built with ⚙️
-* Front-end Development: HTML, CSS - Bootstrap, JavaScript
+* Front-end Development: HTML, CSS - Bootstrap, JavaScript, Jinja
 * Back-end Development: Python 3, Flask, MySQL DB
 
 ## Version 📌
