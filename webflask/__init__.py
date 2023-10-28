@@ -19,6 +19,11 @@ def create_app():
     app.config['SECRET_KEY'] = 'whatyoudeemfit'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost/' + DB_NAME
 
+    # Configure connection pool and recycling for 1000 users
+    #app.config['SQLALCHEMY_POOL_SIZE'] = 150
+    #app.config['SQLALCHEMY_POOL_TIMEOUT'] = 30
+    #app.config['SQLALCHEMY_POOL_RECYCLE'] = 3600 # Recycle connections after 1 hour of idle time
+
     # Directory for uploaded images
     app.config['UPLOADED_IMAGES_DEST'] = os.path.join(
         os.path.abspath(os.path.dirname(__file__)), 'static/images/uploads')
@@ -41,7 +46,7 @@ def create_app():
                 id='mark_expired_auctions_job',
                 func=mark_expired_auctions_as_deleted,
                 trigger='interval',
-                minutes=1
+                minutes=30
             )
 
     # Create the 'uploads' directory if it doesn't exist

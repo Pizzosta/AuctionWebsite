@@ -43,23 +43,23 @@ def home_page():
     last_bids = []  # Initialize last_bids as an empty list
     top_bids = []
 
-
     # if not current_user.is_anonymous:
     if current_user.is_authenticated:
         # Create a subquery to find the maximum bid amount per auction
-        #subquery = db.session.query(
-            #Bid.auction_id.label('auction_id'),
-            #func.max(Bid.amount).label('max_bid')
-        #).group_by(Bid.auction_id).subquery()
+        # subquery = db.session.query(
+        # Bid.auction_id.label('auction_id'),
+        # func.max(Bid.amount).label('max_bid')
+        # ).group_by(Bid.auction_id).subquery()
 
-        # Create another subquery to find the user who placed the maximum bid for each auction
+        # Subquery to find the maximum bid amount per auction
+        # user who placed the maximum bid for each auction
         max_bid_users_subquery = db.session.query(
             Bid.auction_id.label('auction_id'),
             User.username.label('max_bid_username'),
             func.max(Bid.amount).label('max_bid')
         ).join(User, Bid.user_id == User.id).group_by(Bid.auction_id, User.username).subquery()
 
-        # Join the subqueries to find the auction and the users who placed the maximum bids
+        # Main query to find the auctions
         top_bids = db.session.query(
             Auction.id.label('auction_id'),
             max_bid_users_subquery.c.max_bid_username.label('username'),
@@ -120,6 +120,7 @@ def admin_panel():
         'images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
 
     auction = None  # Initialize the 'auction' variable
+    highest_bids = {}  # Create a dictionary to store highest bids
 
     if request.method == 'POST':
         title = request.form.get('title')
@@ -239,12 +240,26 @@ def admin_panel():
             flash(
                 'Bid amount must be equal to or greater than the starting bid.', category='danger')
 
-    all_auctions = Auction.query.all()  # Fetch all auctions from all users
+    # Get the page number from the request or set it to 1 by default
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of auctions per page, adjust as needed
+
+    all_auctions = Auction.query.paginate(
+        page=page, per_page=per_page, error_out=False)  # Fetch all auctions from all users
+    
     all_bids = Bid.query.all()
 
+    for auction in all_auctions.items:
+        # Retrieve the associated auction's id
+        auction_id = auction.id
+
+        # Query the highest bid for the given auction_id
+        highest_bid = db.session.query(func.max(Bid.amount)).filter_by(auction_id=auction_id).scalar()
+        highest_bids[auction.id] = highest_bid
+    
     return render_template('admin.html', user=current_user, username=current_user.username,
                            uploaded_images=uploaded_images, all_auctions=all_auctions,
-                           all_bids=all_bids)
+                           all_bids=all_bids, highest_bids=highest_bids)
 
 
 @views.route('/user-admin', methods=['GET', 'POST'])
@@ -255,6 +270,7 @@ def user_admin_panel():
         'images', IMAGES, default_dest=lambda app: app.config['UPLOADED_IMAGES_DEST'])
 
     auction = None  # Initialize the 'auction' variable
+    highest_bids = {} # Create a dictionary to store highest bids
 
     if request.method == 'POST':
         title = request.form.get('title')
@@ -338,16 +354,29 @@ def user_admin_panel():
                             flash(
                                 'No active auction to associate images with!', category='danger')
 
+    # Get the page number from the request or set it to 1 by default
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of auctions per page, adjust as needed
+
+    user_auctions = Auction.query.filter_by(user_id=current_user.id).paginate(
+        page=page, per_page=per_page, error_out=False)  # Fetch all auctions from current users
 
     user_bids = Bid.query.filter_by(user_id=current_user.id).all()
-    user_auctions = Auction.query.filter_by(user_id=current_user.id).all()
+
+    for auction in user_auctions.items:
+        # Retrieve the associated auction's id
+        auction_id = auction.id
+
+        # Query the highest bid for the given auction_id
+        highest_bid = db.session.query(func.max(Bid.amount)).filter_by(auction_id=auction_id).scalar()
+        highest_bids[auction.id] = highest_bid
 
     return render_template('user_admin.html', user=current_user, username=current_user.username,
                            uploaded_images=uploaded_images, user_bids=user_bids,
-                           user_auctions=user_auctions)
+                           user_auctions=user_auctions, highest_bids=highest_bids)
 
 
-@views.route('/delete-auction/<int:id>', methods=['POST'])
+@views.route('/delete-auction/<int:id>', methods=['GET', 'POST'])
 @login_required
 def delete_auction(id):
     auction = Auction.query.get(id)
