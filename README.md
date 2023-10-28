@@ -18,7 +18,7 @@ Kawodze is a web application aimed at providing comprehensive
 online market presence for traditional artists. The main objective is to create an auction for their most priced crafts where users engage in a bidding war to determine its worth.
 
 ## Environment 💻
-The console was developed on Ubuntu 20.04 LTS using python3 (version 3.8.5) and adheres to pep8 style documentaion.
+The web application was developed on Ubuntu 20.04 LTS using python3 (version 3.8.5) and adheres to pep8 style documentaion.
 
 ## Further information 📑
 For further information on python version, and documentation style visit [python.org](https://www.python.org/).
