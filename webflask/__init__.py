@@ -51,7 +51,7 @@ def create_app():
                 id='mark_expired_auctions_job',
                 func=mark_expired_auctions_as_deleted,
                 trigger='interval',
-                minutes=30
+                minutes=5
             )
 
     # Create the 'uploads' directory if it doesn't exist

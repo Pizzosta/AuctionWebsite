@@ -61,28 +61,14 @@
         {% endfor %}
     </ul>
 </div>
-<div>
-    <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
-    <ul class="list">
-        {% for auction in user_auctions %}
-        <li>
-            {{ auction.title }}
-            {{ auction.description }}
-            {{ auction.created_at }}
-            {{ auction.start_time }}
-            {{ auction.end_time }}
-            {{ auction.starting_bid }}
 
-        </li>
-        {% endfor %}
-    </ul>
-</div>
 <div>
     <h5 class="text-center">CURRENT USER AUCTIONS IN THE DATABASE</h5>
     <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Status</th>
                 <th>Description</th>
                 <th>Created At</th>
                 <th>Start Time</th>
@@ -97,6 +83,13 @@
 
             <tr id="auction-row-{{ auction.id }}">
                 <td>{{ auction.title }}</td>
+                <td>
+                    {% if not auction.deleted %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </td>
                 <td>{{ auction.description }}</td>
                 <td>{{ auction.created_at }}</td>
                 <td>{{ auction.start_time }}</td>

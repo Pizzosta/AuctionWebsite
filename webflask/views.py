@@ -52,18 +52,12 @@ def mark_expired_auctions_as_deleted():
 def home_page():
     show_search = False
     show_div = True  # Set the value of show_div
-    all_auctions = Auction.query.all()  # Fetch all auctions from all users
+    all_auctions = Auction.query.filter(Auction.deleted == False).all()  # Fetch all auctions from all users
     last_bids = []  # Initialize last_bids as an empty list
     top_bids = []
 
     # if not current_user.is_anonymous:
     if current_user.is_authenticated:
-        # Create a subquery to find the maximum bid amount per auction
-        # subquery = db.session.query(
-        # Bid.auction_id.label('auction_id'),
-        # func.max(Bid.amount).label('max_bid')
-        # ).group_by(Bid.auction_id).subquery()
-
         # Subquery to find the maximum bid amount per auction
         # user who placed the maximum bid for each auction
         max_bid_users_subquery = db.session.query(
