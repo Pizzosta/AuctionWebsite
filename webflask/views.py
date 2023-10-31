@@ -83,26 +83,32 @@ def home_page():
             bid_amount = request.form.get('amount')
             auction_id = request.form.get('auction_id')
 
-            if bid_amount:
-                try:
-                    # Round to 2 decimal places
-                    bid_amount = round(float(bid_amount), 2)
-                    auction = Auction.query.get(auction_id)
+            # Check if bid_amount is less than 10,000,000
+            max_value = 10000000
 
-                    if auction and bid_amount >= auction.starting_bid:
-                        bid = Bid(amount=bid_amount,
-                                  user_id=current_user.id, auction_id=auction.id)
-                        db.session.add(bid)
-                        db.session.commit()
-                        flash('Bid placed successfully!', category='success')
-                        return redirect(url_for('views.home_page'))
-                    else:
-                        flash(
-                            'Bid amount must be equal to or greater than the starting bid.', category='danger')
-                except ValueError:
-                    flash('Bid amount must be a valid number.', category='danger')
+            if bid_amount and float(bid_amount) >= max_value:
+                flash('Amount must be less than 10,000,000.', category='danger')
             else:
-                flash('Bid amount is required.', category='danger')
+                if bid_amount:
+                    try:
+                        # Round to 2 decimal places
+                        bid_amount = round(float(bid_amount), 2)
+                        auction = Auction.query.get(auction_id)
+
+                        if auction and bid_amount >= auction.starting_bid:
+                            bid = Bid(amount=bid_amount,
+                                    user_id=current_user.id, auction_id=auction.id)
+                            db.session.add(bid)
+                            db.session.commit()
+                            flash('Bid placed successfully!', category='success')
+                            return redirect(url_for('views.home_page'))
+                        else:
+                            flash(
+                                'Bid amount must be equal to or greater than the starting bid.', category='danger')
+                    except ValueError:
+                        flash('Bid amount must be a valid number.', category='danger')
+                else:
+                    flash('Bid amount is required.', category='danger')
         else:
             flash('You need to be logged in to place a bid.', category='danger')
             return redirect(url_for('auth.login'))
@@ -137,87 +143,90 @@ def admin_panel():
         start_time = request.form.get('start_time')
         end_time = request.form.get('end_time')
         starting_bid = request.form.get('starting_bid')
-
-        bid_amount = request.form.get('amount')
-
         image = request.files.getlist('image')
 
         # retrieve auction.id in the base.html for bids
         auction_id = request.form.get('auction_id')
 
-        if title and description and start_time and end_time and starting_bid:
-            if len(title) > 1 and len(description) > 1:
-                # Validate the end time and starting bid
-                @validates('end_time')
-                def validate_end_time(end_time, start_time):
-                    if end_time <= start_time:
-                        raise ValueError("End time must be after start time.")
-                    return end_time
+        # Check if starting_bid is less than 10,000,000
+        max_value = 10000000
 
-                @validates('starting_bid')
-                def validate_starting_bid(starting_bid):
-                    starting_bid = float(starting_bid)
-                    if starting_bid <= 0:
-                        raise ValueError(
-                            "Starting bid must be a positive value.")
-                    return starting_bid
+        if starting_bid and float(starting_bid) >= max_value:
+            flash('Starting bid must be less than 10,000,000.', category='danger')
+        else:
+            if title and description and start_time and end_time and starting_bid:
+                if len(title) > 1 and len(description) > 1:
+                    # Validate the end time and starting bid
+                    @validates('end_time')
+                    def validate_end_time(end_time, start_time):
+                        if end_time <= start_time:
+                            raise ValueError("End time must be after start time.")
+                        return end_time
 
-                # Convert form values to their appropriate data types
-                start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
-                end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
-                # Round to 2 decimal places
-                starting_bid = round(float(starting_bid), 2)
+                    @validates('starting_bid')
+                    def validate_starting_bid(starting_bid):
+                        starting_bid = float(starting_bid)
+                        if starting_bid <= 0:
+                            raise ValueError(
+                                "Starting bid must be a positive value.")
+                        return starting_bid
 
-                try:
-                    end_time = validate_end_time(end_time, start_time)
-                    starting_bid = validate_starting_bid(starting_bid)
-                except ValueError as e:
-                    # Create a flash message for validation error
-                    flash(str(e), 'danger')
+                    # Convert form values to their appropriate data types
+                    start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+                    end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
+                    # Round to 2 decimal places
+                    starting_bid = round(float(starting_bid), 2)
+
+                    try:
+                        end_time = validate_end_time(end_time, start_time)
+                        starting_bid = validate_starting_bid(starting_bid)
+                    except ValueError as e:
+                        # Create a flash message for validation error
+                        flash(str(e), 'danger')
+                    else:
+                        # Handle the Auction form submission
+                        # Create the Auction object and add it to the database
+                        auction = Auction(title=title, description=description,
+                                        start_time=start_time, end_time=end_time,
+                                        starting_bid=starting_bid, user_id=current_user.id)
+                        db.session.add(auction)
+                        db.session.commit()
+                        flash('Auction created successfully!', category='success')
                 else:
-                    # Handle the Auction form submission
-                    # Create the Auction object and add it to the database
-                    auction = Auction(title=title, description=description,
-                                      start_time=start_time, end_time=end_time,
-                                      starting_bid=starting_bid, user_id=current_user.id)
-                    db.session.add(auction)
-                    db.session.commit()
-                    flash('Auction created successfully!', category='success')
-            else:
-                if len(title) <= 1:
-                    flash('Title must be at least 2 characters long.',
-                          category='danger')
-                if len(description) <= 1:
-                    flash('Description must be at least 2 characters long.',
-                          category='danger')
+                    if len(title) <= 1:
+                        flash('Title must be at least 2 characters long.',
+                            category='danger')
+                    if len(description) <= 1:
+                        flash('Description must be at least 2 characters long.',
+                            category='danger')
 
-            if end_time <= start_time:
-                flash('End time must be after the start time.', category='danger')
+                if end_time <= start_time:
+                    flash('End time must be after the start time.', category='danger')
 
-            if float(starting_bid) <= 0:
-                flash('Starting bid must be a positive value.', category='danger')
+                if float(starting_bid) <= 0:
+                    flash('Starting bid must be a positive value.', category='danger')
 
-            if image:
-                # Get a list of uploaded files
-                for uploaded_file in image:
-                    if uploaded_file:
-                        # Sanitize the filename using secure_filename
-                        filename = secure_filename(uploaded_file.filename)
-                        # Save the sanitized filename
-                        filename = uploaded_images.save(
-                            uploaded_file, name=filename)
+                if image:
+                    # Get a list of uploaded files
+                    for uploaded_file in image:
+                        if uploaded_file:
+                            # Sanitize the filename using secure_filename
+                            filename = secure_filename(uploaded_file.filename)
+                            # Save the sanitized filename
+                            filename = uploaded_images.save(
+                                uploaded_file, name=filename)
 
-                        # Create an Image object and associate it with the current user and auction
-                        if auction:
-                            image = Image(
-                                filename=filename, user_id=current_user.id, auction_id=auction.id)
-                            db.session.add(image)
-                            db.session.commit()
-                            flash('Images submitted successfully!',
-                                  category='success')
-                        else:
-                            flash(
-                                'No active auction to associate images with!', category='danger')
+                            # Create an Image object and associate it with the current user and auction
+                            if auction:
+                                image = Image(
+                                    filename=filename, user_id=current_user.id, auction_id=auction.id)
+                                db.session.add(image)
+                                db.session.commit()
+                                flash('Images submitted successfully!',
+                                    category='success')
+                            else:
+                                flash(
+                                    'No active auction to associate images with!', category='danger')
 
     # Get the page number from the request or set it to 1 by default
     page = request.args.get('page', 1, type=int)
@@ -261,84 +270,91 @@ def user_admin_panel():
 
         image = request.files.getlist('image')
 
-        if title and description and start_time and end_time and starting_bid:
-            if len(title) > 1 and len(description) > 1:
-                # Validate the end time and starting bid
-                @validates('end_time')
-                def validate_end_time(end_time, start_time):
-                    if end_time <= start_time:
-                        raise ValueError("End time must be after start time.")
-                    return end_time
+        # Check if starting_bid is less than 10,000,000
+        max_value = 10000000
 
-                @validates('starting_bid')
-                def validate_starting_bid(starting_bid):
-                    starting_bid = float(starting_bid)
-                    if starting_bid <= 0:
-                        raise ValueError(
-                            "Starting bid must be a positive value.")
-                    return starting_bid
+        if starting_bid and float(starting_bid) >= max_value:
+            flash('Starting bid must be less than 10,000,000.', category='danger')
+        else:
 
-                # Convert form values to their appropriate data types
-                start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
-                end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
-                # Round to 2 decimal places
-                starting_bid = round(float(starting_bid), 2)
+            if title and description and start_time and end_time and starting_bid:
+                if len(title) > 1 and len(description) > 1:
+                    # Validate the end time and starting bid
+                    @validates('end_time')
+                    def validate_end_time(end_time, start_time):
+                        if end_time <= start_time:
+                            raise ValueError("End time must be after start time.")
+                        return end_time
 
-                try:
-                    end_time = validate_end_time(end_time, start_time)
-                    starting_bid = validate_starting_bid(starting_bid)
-                except ValueError as e:
-                    # Create a flash message for validation error
-                    flash(str(e), 'danger')
+                    @validates('starting_bid')
+                    def validate_starting_bid(starting_bid):
+                        starting_bid = float(starting_bid)
+                        if starting_bid <= 0:
+                            raise ValueError(
+                                "Starting bid must be a positive value.")
+                        return starting_bid
+
+                    # Convert form values to their appropriate data types
+                    start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+                    end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
+                    # Round to 2 decimal places
+                    starting_bid = round(float(starting_bid), 2)
+
+                    try:
+                        end_time = validate_end_time(end_time, start_time)
+                        starting_bid = validate_starting_bid(starting_bid)
+                    except ValueError as e:
+                        # Create a flash message for validation error
+                        flash(str(e), 'danger')
+                    else:
+                        # Handle the Auction form submission
+                        # Create the Auction object and add it to the database
+                        auction = Auction(title=title, description=description,
+                                        start_time=start_time, end_time=end_time,
+                                        starting_bid=starting_bid, user_id=current_user.id)
+                        db.session.add(auction)
+                        db.session.commit()
+                        flash('Auction created successfully!', category='success')
                 else:
-                    # Handle the Auction form submission
-                    # Create the Auction object and add it to the database
-                    auction = Auction(title=title, description=description,
-                                      start_time=start_time, end_time=end_time,
-                                      starting_bid=starting_bid, user_id=current_user.id)
-                    db.session.add(auction)
-                    db.session.commit()
-                    flash('Auction created successfully!', category='success')
-            else:
-                if len(title) <= 1:
-                    flash('Title must be at least 2 characters long.',
-                          category='danger')
-                if len(description) <= 1:
-                    flash('Description must be at least 2 characters long.',
-                          category='danger')
+                    if len(title) <= 1:
+                        flash('Title must be at least 2 characters long.',
+                            category='danger')
+                    if len(description) <= 1:
+                        flash('Description must be at least 2 characters long.',
+                            category='danger')
 
-            if end_time <= start_time:
-                flash('End time must be after the start time.', category='danger')
+                if end_time <= start_time:
+                    flash('End time must be after the start time.', category='danger')
 
-            if float(starting_bid) <= 0:
-                flash('Starting bid must be a positive value.', category='danger')
+                if float(starting_bid) <= 0:
+                    flash('Starting bid must be a positive value.', category='danger')
 
-            if image:
-                # Get a list of uploaded files
-                for uploaded_file in image:
-                    if uploaded_file:
-                        # Sanitize the filename using secure_filename
-                        filename = secure_filename(uploaded_file.filename)
+                if image:
+                    # Get a list of uploaded files
+                    for uploaded_file in image:
+                        if uploaded_file:
+                            # Sanitize the filename using secure_filename
+                            filename = secure_filename(uploaded_file.filename)
 
-                        if len(filename) > 50:
-                            flash(
-                                'Image filename is too long (maximum 50 characters).', category='danger')
-                        else:
-                            # Save the sanitized filename
-                            filename = uploaded_images.save(
-                                uploaded_file, name=filename)
-
-                            # Create an Image object and associate it with the current user and auction
-                            if auction:
-                                image = Image(
-                                    filename=filename, user_id=current_user.id, auction_id=auction.id)
-                                db.session.add(image)
-                                db.session.commit()
-                                flash('Images submitted successfully!',
-                                      category='success')
-                            else:
+                            if len(filename) > 50:
                                 flash(
-                                    'No active auction to associate images with!', category='danger')
+                                    'Image filename is too long (maximum 50 characters).', category='danger')
+                            else:
+                                # Save the sanitized filename
+                                filename = uploaded_images.save(
+                                    uploaded_file, name=filename)
+
+                                # Create an Image object and associate it with the current user and auction
+                                if auction:
+                                    image = Image(
+                                        filename=filename, user_id=current_user.id, auction_id=auction.id)
+                                    db.session.add(image)
+                                    db.session.commit()
+                                    flash('Images submitted successfully!',
+                                        category='success')
+                                else:
+                                    flash(
+                                        'No active auction to associate images with!', category='danger')
 
     # Get the page number from the request or set it to 1 by default
     page = request.args.get('page', 1, type=int)
