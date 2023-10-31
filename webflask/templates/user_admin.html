@@ -47,7 +47,7 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 <div>
-    <h2>Your Bids</h2>
+    <h2>YOUR BIDS</h2>
     <ul>
         {% for bid in user_bids %}
         <li>
@@ -93,7 +93,7 @@
                 <td>{{ auction.starting_bid }}</td>
                 <td>
                     {% if highest_bids[auction.id] is not none %}
-                    {{ '%.2f' | format(highest_bids[auction.id]) }}
+                    <!--{{ '%.2f' | format(highest_bids[auction.id]) }}-->
                     {% else %}
                     No bids yet
                     {% endif %}

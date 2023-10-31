@@ -52,7 +52,8 @@ def mark_expired_auctions_as_deleted():
 def home_page():
     show_search = False
     show_div = True  # Set the value of show_div
-    all_auctions = Auction.query.filter(Auction.deleted == False).all()  # Fetch all auctions from all users
+    # Fetch all auctions from all users
+    all_auctions = Auction.query.filter(Auction.deleted == False).all()
     last_bids = []  # Initialize last_bids as an empty list
     top_bids = []
 
@@ -84,7 +85,8 @@ def home_page():
 
             if bid_amount:
                 try:
-                    bid_amount = float(bid_amount)
+                    # Round to 2 decimal places
+                    bid_amount = round(float(bid_amount), 2)
                     auction = Auction.query.get(auction_id)
 
                     if auction and bid_amount >= auction.starting_bid:
@@ -163,7 +165,8 @@ def admin_panel():
                 # Convert form values to their appropriate data types
                 start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
                 end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
-                starting_bid = float(starting_bid)
+                # Round to 2 decimal places
+                starting_bid = round(float(starting_bid), 2)
 
                 try:
                     end_time = validate_end_time(end_time, start_time)
@@ -216,37 +219,6 @@ def admin_panel():
                             flash(
                                 'No active auction to associate images with!', category='danger')
 
-        if bid_amount and bid_amount.isdigit() and auction_id:
-            # Ensure bid_amount is a valid number
-            try:
-                bid_amount = float(bid_amount)
-            except ValueError:
-                flash('Bid amount must be a valid number.', category='danger')
-
-            # Retrieve the associated auction's starting bid
-            auction = Auction.query.get(auction_id)
-
-            print("Retrieved auction_id:", auction_id)
-
-            if auction:
-                if bid_amount >= auction.starting_bid:
-                    # if bid_amount is not None and starting_bid is not None and bid_amount >= starting_bid:
-                    # Create a new Bid object associated with the auction
-                    bid = Bid(amount=bid_amount, user_id=current_user.id,
-                              auction_id=auction.id)
-                    db.session.add(bid)
-                    db.session.commit()
-                    flash('Bid placed successfully!', category='success')
-                else:
-                    flash(
-                        'Bid amount must be equal to or greater than the starting bid.', category='danger')
-            else:
-                flash('No active auction to place a bid!', category='danger')
-        else:
-            # flash('Invalid auction ID provided.', category='danger')
-            flash(
-                'Bid amount must be equal to or greater than the starting bid.', category='danger')
-
     # Get the page number from the request or set it to 1 by default
     page = request.args.get('page', 1, type=int)
     per_page = 10  # Number of auctions per page, adjust as needed
@@ -264,7 +236,6 @@ def admin_panel():
         highest_bid = db.session.query(func.max(Bid.amount)).filter_by(
             auction_id=auction_id).scalar()
         highest_bids[auction.id] = highest_bid
-
 
     return render_template('admin.html', user=current_user, username=current_user.username,
                            uploaded_images=uploaded_images, all_auctions=all_auctions,
@@ -310,7 +281,8 @@ def user_admin_panel():
                 # Convert form values to their appropriate data types
                 start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
                 end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
-                starting_bid = float(starting_bid)
+                # Round to 2 decimal places
+                starting_bid = round(float(starting_bid), 2)
 
                 try:
                     end_time = validate_end_time(end_time, start_time)
@@ -349,7 +321,8 @@ def user_admin_panel():
                         filename = secure_filename(uploaded_file.filename)
 
                         if len(filename) > 50:
-                            flash('Image filename is too long (maximum 50 characters).', category='danger')
+                            flash(
+                                'Image filename is too long (maximum 50 characters).', category='danger')
                         else:
                             # Save the sanitized filename
                             filename = uploaded_images.save(
@@ -362,7 +335,7 @@ def user_admin_panel():
                                 db.session.add(image)
                                 db.session.commit()
                                 flash('Images submitted successfully!',
-                                    category='success')
+                                      category='success')
                             else:
                                 flash(
                                     'No active auction to associate images with!', category='danger')
