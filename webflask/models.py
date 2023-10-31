@@ -46,7 +46,7 @@ class Auction(db.Model):
         db.DateTime, default=datetime.utcnow, nullable=False)
     end_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     #starting_bid = db.Column(db.Float, nullable=False)
-    starting_bid = db.Column(db.Numeric(precision=7, scale=2), nullable=False)
+    starting_bid = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
 
     # Define a many-to-one relationship with users (many auctions can be created by one user)
@@ -65,7 +65,7 @@ class Bid(db.Model):
     # __tablename__ = 'Bid'
     id = db.Column(db.Integer, primary_key=True)
     #amount = db.Column(db.Float, nullable=False)
-    amount = db.Column(db.Numeric(precision=7, scale=2), nullable=False)
+    amount = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
