@@ -78,7 +78,7 @@ class Bid(db.Model):
 class Image(db.Model):
     # __tablename__ = 'Image'
     id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(128), nullable=False)
+    filename = db.Column(db.String(50), nullable=False)
     deleted = db.Column(db.Boolean, default=False)  # Soft delete column
 
     # Define a many-to-one relationship with auctions (many images can belong to one auction)

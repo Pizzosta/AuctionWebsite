@@ -347,21 +347,25 @@ def user_admin_panel():
                     if uploaded_file:
                         # Sanitize the filename using secure_filename
                         filename = secure_filename(uploaded_file.filename)
-                        # Save the sanitized filename
-                        filename = uploaded_images.save(
-                            uploaded_file, name=filename)
 
-                        # Create an Image object and associate it with the current user and auction
-                        if auction:
-                            image = Image(
-                                filename=filename, user_id=current_user.id, auction_id=auction.id)
-                            db.session.add(image)
-                            db.session.commit()
-                            flash('Images submitted successfully!',
-                                  category='success')
+                        if len(filename) > 50:
+                            flash('Image filename is too long (maximum 50 characters).', category='danger')
                         else:
-                            flash(
-                                'No active auction to associate images with!', category='danger')
+                            # Save the sanitized filename
+                            filename = uploaded_images.save(
+                                uploaded_file, name=filename)
+
+                            # Create an Image object and associate it with the current user and auction
+                            if auction:
+                                image = Image(
+                                    filename=filename, user_id=current_user.id, auction_id=auction.id)
+                                db.session.add(image)
+                                db.session.commit()
+                                flash('Images submitted successfully!',
+                                    category='success')
+                            else:
+                                flash(
+                                    'No active auction to associate images with!', category='danger')
 
     # Get the page number from the request or set it to 1 by default
     page = request.args.get('page', 1, type=int)

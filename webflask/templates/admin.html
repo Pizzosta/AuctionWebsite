@@ -5,7 +5,7 @@
 </div>
 
 <form method="POST" action="{{ url_for('views.admin_panel') }}" enctype="multipart/form-data" class="needs-validation">
-    <h2>Auction Information</h2>
+    <h2>AUCTION INFORMATION</h2>
 
     <div class="form-group col-md-6">
         <label for="title">Auction Title:</label>
@@ -27,6 +27,7 @@
             <label for="end_time">End Time:</label>
             <input type="datetime-local" id="end_time" name="end_time" class="form-control"
                 min="{{ current_datetime() | datetime_local_format }}" required>
+            <small><strong>End Time should be after Start Time</strong></small>
         </div>
     </div>
 
@@ -42,17 +43,12 @@
         <input type="number" step="0.01" id="amount" name="amount" class="form-control" placeholder="Bid Amount">
     </div>
 
-    <h2>Image Information</h2>
-
     <div class="form-group">
         <label for="image">Upload Image:</label>
         <input type="file" id="image" name="image" accept="image/*" class="form-control-file" multiple required>
         <div id="image-preview" class="mt-2">
             <!-- Preview thumbnails will appear here -->
         </div>
-    </div>
-    <div id="image-preview" class="mt-2">
-        <!-- Preview thumbnails will appear here -->
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
