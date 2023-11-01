@@ -97,28 +97,27 @@ def home_page():
 
                         if auction and bid_amount >= auction.starting_bid:
                             bid = Bid(amount=bid_amount,
-                                    user_id=current_user.id, auction_id=auction.id)
+                                      user_id=current_user.id, auction_id=auction.id)
                             db.session.add(bid)
                             db.session.commit()
-                            flash('Bid placed successfully!', category='success')
+                            flash('Bid placed successfully!',
+                                  category='success')
                             return redirect(url_for('views.home_page'))
                         else:
                             flash(
                                 'Bid amount must be equal to or greater than the starting bid.', category='danger')
                     except ValueError:
-                        flash('Bid amount must be a valid number.', category='danger')
+                        flash('Bid amount must be a valid number.',
+                              category='danger')
                 else:
                     flash('Bid amount is required.', category='danger')
         else:
             flash('You need to be logged in to place a bid.', category='danger')
             return redirect(url_for('auth.login'))
-    
-    # Inside your view function (home_page), fetch the end times for each auction
-    end_times = [auction.end_time.strftime('%Y-%m-%dT%H:%M:%S') for auction in all_auctions]
 
     return render_template("base.html", top_bids=top_bids, last_bids=last_bids,
                            show_search=show_search, show_div=show_div,
-                           user=current_user, all_auctions=all_auctions, end_times=end_times)
+                           user=current_user, all_auctions=all_auctions)
 
 
 @views.route('/account', methods=['POST', 'GET'])
@@ -163,7 +162,8 @@ def admin_panel():
                     @validates('end_time')
                     def validate_end_time(end_time, start_time):
                         if end_time <= start_time:
-                            raise ValueError("End time must be after start time.")
+                            raise ValueError(
+                                "End time must be after start time.")
                         return end_time
 
                     @validates('starting_bid')
@@ -175,7 +175,8 @@ def admin_panel():
                         return starting_bid
 
                     # Convert form values to their appropriate data types
-                    start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+                    start_time = datetime.strptime(
+                        start_time, "%Y-%m-%dT%H:%M")
                     end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
                     # Round to 2 decimal places
                     starting_bid = round(float(starting_bid), 2)
@@ -190,24 +191,27 @@ def admin_panel():
                         # Handle the Auction form submission
                         # Create the Auction object and add it to the database
                         auction = Auction(title=title, description=description,
-                                        start_time=start_time, end_time=end_time,
-                                        starting_bid=starting_bid, user_id=current_user.id)
+                                          start_time=start_time, end_time=end_time,
+                                          starting_bid=starting_bid, user_id=current_user.id)
                         db.session.add(auction)
                         db.session.commit()
-                        flash('Auction created successfully!', category='success')
+                        flash('Auction created successfully!',
+                              category='success')
                 else:
                     if len(title) <= 1:
                         flash('Title must be at least 2 characters long.',
-                            category='danger')
+                              category='danger')
                     if len(description) <= 1:
                         flash('Description must be at least 2 characters long.',
-                            category='danger')
+                              category='danger')
 
                 if end_time <= start_time:
-                    flash('End time must be after the start time.', category='danger')
+                    flash('End time must be after the start time.',
+                          category='danger')
 
                 if float(starting_bid) <= 0:
-                    flash('Starting bid must be a positive value.', category='danger')
+                    flash('Starting bid must be a positive value.',
+                          category='danger')
 
                 if image:
                     # Get a list of uploaded files
@@ -226,7 +230,7 @@ def admin_panel():
                                 db.session.add(image)
                                 db.session.commit()
                                 flash('Images submitted successfully!',
-                                    category='success')
+                                      category='success')
                             else:
                                 flash(
                                     'No active auction to associate images with!', category='danger')
@@ -286,7 +290,8 @@ def user_admin_panel():
                     @validates('end_time')
                     def validate_end_time(end_time, start_time):
                         if end_time <= start_time:
-                            raise ValueError("End time must be after start time.")
+                            raise ValueError(
+                                "End time must be after start time.")
                         return end_time
 
                     @validates('starting_bid')
@@ -298,7 +303,8 @@ def user_admin_panel():
                         return starting_bid
 
                     # Convert form values to their appropriate data types
-                    start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+                    start_time = datetime.strptime(
+                        start_time, "%Y-%m-%dT%H:%M")
                     end_time = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
                     # Round to 2 decimal places
                     starting_bid = round(float(starting_bid), 2)
@@ -313,24 +319,27 @@ def user_admin_panel():
                         # Handle the Auction form submission
                         # Create the Auction object and add it to the database
                         auction = Auction(title=title, description=description,
-                                        start_time=start_time, end_time=end_time,
-                                        starting_bid=starting_bid, user_id=current_user.id)
+                                          start_time=start_time, end_time=end_time,
+                                          starting_bid=starting_bid, user_id=current_user.id)
                         db.session.add(auction)
                         db.session.commit()
-                        flash('Auction created successfully!', category='success')
+                        flash('Auction created successfully!',
+                              category='success')
                 else:
                     if len(title) <= 1:
                         flash('Title must be at least 2 characters long.',
-                            category='danger')
+                              category='danger')
                     if len(description) <= 1:
                         flash('Description must be at least 2 characters long.',
-                            category='danger')
+                              category='danger')
 
                 if end_time <= start_time:
-                    flash('End time must be after the start time.', category='danger')
+                    flash('End time must be after the start time.',
+                          category='danger')
 
                 if float(starting_bid) <= 0:
-                    flash('Starting bid must be a positive value.', category='danger')
+                    flash('Starting bid must be a positive value.',
+                          category='danger')
 
                 if image:
                     # Get a list of uploaded files
@@ -354,7 +363,7 @@ def user_admin_panel():
                                     db.session.add(image)
                                     db.session.commit()
                                     flash('Images submitted successfully!',
-                                        category='success')
+                                          category='success')
                                 else:
                                     flash(
                                         'No active auction to associate images with!', category='danger')

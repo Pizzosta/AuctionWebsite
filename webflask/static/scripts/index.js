@@ -9,50 +9,6 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/**
- * function setTargetTimes() {
-  // Get the current time
-  var now = new Date();
-
-  // Get all elements with class 'countdown' and loop through them
-  var countdownElements = document.querySelectorAll('[class^="countdown-"]');
-  countdownElements.forEach(function (countdownElement) {
-    // Extract the auction ID from the class name
-    var auctionId = countdownElement.className.split('-')[1];
-
-    // Calculate the target time for this auction (5 minutes from now)
-    var targetTime = new Date(now.getTime() + 5 * 60 * 1000); // 5 minutes in milliseconds
-
-    // Set the 'target' attribute with the target time for this auction
-    countdownElement.setAttribute('data-target', targetTime);
-  });
-}
-
-// Call this function once when the page loads to set the target times
-setTargetTimes();
-
-function updateTimers() {
-  var now = new Date();
-
-  // Get all elements with class 'countdown' and loop through them
-  var countdownElements = document.querySelectorAll('[class^="countdown-"]');
-  countdownElements.forEach(function (countdownElement) {
-    var targetTime = new Date(countdownElement.getAttribute('data-target'));
-    var timeLeft = targetTime - now;
-
-    if (timeLeft <= 0) {
-      countdownElement.innerHTML = "Auction Ended";
-    } else {
-      var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-      countdownElement.innerHTML = ("0" + minutes).slice(-2) + ":" + ("0" + seconds).slice(-2);
-    }
-  });
-}
-
-setInterval(updateTimers, 1000);
-*/
-
 
 // Image Thumbnail
 var imageInput = document.getElementById('image');
@@ -137,52 +93,80 @@ function validateForm() {
   return checkPasswordsMatch();
 }
 
-/** 
-function updateCountdownTimers() {
-  const now = new Date();
 
-  // Get all elements with class 'countdown' and loop through them
-  const countdownElements = document.querySelectorAll('[data-end-time]');
+/**(function () {
+  // Convert the end time from your database format to a JavaScript Date object
+  var endTime = new Date("{{ auction.end_time }}");
 
-  countdownElements.forEach(function (countdownElement) {
-      const endTime = new Date(countdownElement.getAttribute('data-end-time'));
-      const timeLeft = endTime - now;
+  var x = setInterval(function () {
+      var now = new Date().getTime();
+      var distance = endTime - now;
 
-      if (timeLeft <= 0) {
-          countdownElement.querySelector('.countdown').textContent = 'Auction ended';
-      } else {
-          const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
-          const seconds = Math.floor((timeLeft / 1000) % 60);
-          countdownElement.querySelector('.countdown').textContent = `${minutes}m ${seconds}s`;
+      // Calculate days, hours, minutes, and seconds
+      var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      // Display the countdown
+      var countdownElem = document.getElementById("countdown-{{ auction.id }}");
+      countdownElem.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+      // If the countdown is over, display a message
+      if (distance < 0) {
+          clearInterval(x);
+          countdownElem.innerHTML = "EXPIRED";
+          var bidButton = document.querySelector("#bid-button-{{ auction.id }}");
+          var bidInput = document.querySelector("#amount-{{ auction.id }}");
+          bidButton.disabled = true;
+          bidInput.disabled = true;
       }
-  });
-}
+  }, 1000);
 
-// Call the function to set initial countdowns
-updateCountdownTimers();
-
-// Set up a timer to update countdowns every second
-setInterval(updateCountdownTimers, 1000);
+})();
 */
 
+// Wrap your code in a function to ensure it runs after the DOM is fully loaded.
+document.addEventListener("DOMContentLoaded", function () {
+  // Find all elements needed for the countdown and bid button handling.
+  const auctionId = "{{ auction.id }}";
+  const countdownElem = document.getElementById("countdown-" + auctionId);
+  const bidButton = document.getElementById("bid-button-" + auctionId);
+  const bidInput = document.getElementById("amount-" + auctionId);
 
-var endTime = new Date("{{ auction.end_time }}").getTime();
-var x = setInterval(function () {
-  var now = new Date().getTime();
-  var distance = endTime - now;
+  // Function to update the countdown timer.
+  function updateCountdown(endTime) {
+    const now = new Date().getTime();
+    const distance = endTime - now;
 
-  // Calculate days, hours, minutes, and seconds
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    // Calculate days, hours, minutes, and seconds
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-  // Display the countdown
-  document.getElementById("countdown-{{ auction.id }}").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+    // Display the countdown
+    countdownElem.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-  // If the countdown is over, display a message
-  if (distance < 0) {
-    clearInterval(x);
-    document.getElementById("countdown-{{ auction.id }}").innerHTML = "EXPIRED";
+    // If the countdown is over, display a message
+    if (distance < 0) {
+      clearInterval(countdownInterval);
+      countdownElem.innerHTML = "EXPIRED";
+      bidButton.disabled = true;
+      bidInput.disabled = true;
+    }
   }
-}, 1000);
+
+  // Function to start the countdown.
+  function startCountdown() {
+    const endTime = new Date("{{ auction.end_time }}").getTime();
+    updateCountdown(endTime);
+    // Update the countdown every second.
+    const countdownInterval = setInterval(function () {
+      updateCountdown(endTime);
+    }, 1000);
+  }
+
+  // Call the startCountdown function to begin the countdown.
+  startCountdown();
+});
