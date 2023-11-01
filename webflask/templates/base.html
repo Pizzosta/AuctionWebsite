@@ -140,9 +140,35 @@
                         <div class="col-sm p-3 m-2 border rounded">
                             <h4 class="text-center border-bottom">BID INFORMATION</h4>
                             <h6>Auction ID: {{ auction.id }}</h6>
-                            <div class="timer mb-3">
-                                Time Left: <span class="countdown-{{ auction.id }}">00:05:00</span>
+                            <h6>Starting Bid: &#8373; {{ auction.starting_bid }}</h6>
+
+                            <div class="countdown-timer">
+                                <p>Time Left: <span id="countdown-{{ auction.id }}"></span></p>
+                                <div class="countdown" id="countdown-{{ auction.id }}"></div>
                             </div>
+                            <script>
+                                // Convert the end time from your database format to a JavaScript Date object
+                                var endTime = new Date("{{ auction.end_time }}");
+                                var x = setInterval(function () {
+                                    var now = new Date().getTime();
+                                    var distance = endTime - now;
+
+                                    // Calculate days, hours, minutes, and seconds
+                                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                                    // Display the countdown
+                                    document.getElementById("countdown-{{ auction.id }}").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+                                    // If the countdown is over, display a message
+                                    if (distance < 0) {
+                                        clearInterval(x);
+                                        document.getElementById("countdown-{{ auction.id }}").innerHTML = "EXPIRED";
+                                    }
+                                }, 1000);
+                            </script>
                             <h6>Starting Bid: &#8373; {{ auction.starting_bid }}</h6>
 
                             {% for bid in last_bids %}
@@ -156,15 +182,13 @@
                                 <input type="hidden" name="auction_id" value="{{ auction.id }}">
                                 <div class="input-group mb-3 mt-3">
                                     <span class="input-group-text">Your Bid:</span>
-                                    <input type="number" class="form-control" step="0.01" max="9999999" id="amount" name="amount"
-                                        placeholder="Enter Bid" required>
+                                    <input type="number" class="form-control" step="0.01" max="9999999" id="amount"
+                                        name="amount" placeholder="Enter Bid" required>
                                 </div>
                                 <button class="btn btn-primary">Place Bid</button>
                             </form>
-
                         </div>
                     </div>
-                    
                     <h5>Top Bids by each User </h5>
                     <ul class="list-group">
                         {% for top_bid in top_bids %}
@@ -174,7 +198,6 @@
                         {% endif %}
                         {% endfor %}
                     </ul>
-
                 </li>
 
             </ul>

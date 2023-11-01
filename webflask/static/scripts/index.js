@@ -9,7 +9,8 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function setTargetTimes() {
+/**
+ * function setTargetTimes() {
   // Get the current time
   var now = new Date();
 
@@ -50,6 +51,7 @@ function updateTimers() {
 }
 
 setInterval(updateTimers, 1000);
+*/
 
 
 // Image Thumbnail
@@ -105,12 +107,14 @@ function deleteAuction(auctionId) {
       } else {
         // Other error, show an error message (optional)
         document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">An error occurred while deleting the auction. \
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';      }
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+      }
     })
     .catch(error => {
       // Fetch error, show an error message (optional)
       document.getElementById('flash-message').innerHTML = '<div class="alert alert-danger">Error occurred while deleting the auction. \
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';    })
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+    })
 }
 
 //Check password client side validation
@@ -132,3 +136,53 @@ function validateForm() {
   // Additional client-side validation checks can be added here.
   return checkPasswordsMatch();
 }
+
+/** 
+function updateCountdownTimers() {
+  const now = new Date();
+
+  // Get all elements with class 'countdown' and loop through them
+  const countdownElements = document.querySelectorAll('[data-end-time]');
+
+  countdownElements.forEach(function (countdownElement) {
+      const endTime = new Date(countdownElement.getAttribute('data-end-time'));
+      const timeLeft = endTime - now;
+
+      if (timeLeft <= 0) {
+          countdownElement.querySelector('.countdown').textContent = 'Auction ended';
+      } else {
+          const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
+          const seconds = Math.floor((timeLeft / 1000) % 60);
+          countdownElement.querySelector('.countdown').textContent = `${minutes}m ${seconds}s`;
+      }
+  });
+}
+
+// Call the function to set initial countdowns
+updateCountdownTimers();
+
+// Set up a timer to update countdowns every second
+setInterval(updateCountdownTimers, 1000);
+*/
+
+
+var endTime = new Date("{{ auction.end_time }}").getTime();
+var x = setInterval(function () {
+  var now = new Date().getTime();
+  var distance = endTime - now;
+
+  // Calculate days, hours, minutes, and seconds
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  // Display the countdown
+  document.getElementById("countdown-{{ auction.id }}").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+  // If the countdown is over, display a message
+  if (distance < 0) {
+    clearInterval(x);
+    document.getElementById("countdown-{{ auction.id }}").innerHTML = "EXPIRED";
+  }
+}, 1000);

@@ -112,10 +112,13 @@ def home_page():
         else:
             flash('You need to be logged in to place a bid.', category='danger')
             return redirect(url_for('auth.login'))
+    
+    # Inside your view function (home_page), fetch the end times for each auction
+    end_times = [auction.end_time.strftime('%Y-%m-%dT%H:%M:%S') for auction in all_auctions]
 
     return render_template("base.html", top_bids=top_bids, last_bids=last_bids,
                            show_search=show_search, show_div=show_div,
-                           user=current_user, all_auctions=all_auctions)
+                           user=current_user, all_auctions=all_auctions, end_times=end_times)
 
 
 @views.route('/account', methods=['POST', 'GET'])
